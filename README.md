@@ -32,9 +32,9 @@ The Android app on a phone uses the development build below, not Expo Go. The in
 
 ## تثبيت نسخة التطوير على أندرويد
 
-ملف التثبيت: [`release/tabkha-dev-client.apk`](release/tabkha-dev-client.apk)
+ملف التثبيت: [`release/tabkha-dev-client.apk`](release/tabkha-dev-client.apk) (حوالي 89 ميغابايت، معالج arm64 فقط).
 
-هذه نسخة تطوير (Expo Dev Client) بمعمارية arm64، وليست نسخة المتجر. تُثبَّت على الهاتف مرة واحدة، ثم تتصل بالحاسوب لتعرض آخر نسخة من الكود.
+هذه نسخة تطوير (Expo Dev Client) وليست نسخة المتجر. تُثبَّت على الهاتف مرة واحدة، ثم تتصل بالحاسوب لتعرض آخر نسخة من الكود.
 
 1. انقل الملف إلى هاتف أندرويد (64-bit، وهو حال أغلب الأجهزة) وافتحه. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
 2. على الحاسوب، داخل مجلد المشروع، وثبّت الحزم إن لم تكن مثبتة:
@@ -61,7 +61,7 @@ npx expo start --dev-client --tunnel
 
 ## Install the Android development build
 
-The installable file is [`release/tabkha-dev-client.apk`](release/tabkha-dev-client.apk). It is a debug **Expo Dev Client** for arm64 phones, signed with the Android debug key. It is the native shell; JavaScript comes from the dev server on your computer, which is how live edits reach the phone.
+The installable file is [`release/tabkha-dev-client.apk`](release/tabkha-dev-client.apk) (about 89 MB, arm64-v8a only). It is a debug **Expo Dev Client** signed with the Android debug key. It is the native shell; JavaScript comes from the dev server on your computer, which is how live edits reach the phone.
 
 1. Copy the APK to the phone and open it. Allow installation from that source if Android asks.
 2. On the computer, in this project:
