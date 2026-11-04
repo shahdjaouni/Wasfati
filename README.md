@@ -24,25 +24,74 @@ Requires Node.js 22.
 npm install
 npm test
 npm run typecheck
-npx expo start
 ```
 
-Then:
+`npm run web` opens a browser preview. iOS simulator (macOS): `npm run ios`.
 
-- Press `a` for Android or scan the QR code with Expo Go.
-- Press `i` for the iOS simulator (macOS).
-- `npm run web` opens the browser preview.
+The Android app on a phone uses the development build below, not Expo Go. The installed APK is a shell; the screens load from your computer so edits show up live.
 
-## Android APK
+## تثبيت نسخة التطوير على أندرويد
 
-`eas.json` has a preview profile that produces an APK (`eas build -p android --profile preview`). A local build does not need an Expo account:
+ملف التثبيت: [`release/tabkha-dev-client.apk`](release/tabkha-dev-client.apk)
+
+هذه نسخة تطوير (Expo Dev Client) بمعمارية arm64، وليست نسخة المتجر. تُثبَّت على الهاتف مرة واحدة، ثم تتصل بالحاسوب لتعرض آخر نسخة من الكود.
+
+1. انقل الملف إلى هاتف أندرويد (64-bit، وهو حال أغلب الأجهزة) وافتحه. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
+2. على الحاسوب، داخل مجلد المشروع، وثبّت الحزم إن لم تكن مثبتة:
+
+```bash
+npm install
+npx expo start --dev-client
+```
+
+أو `npm start`.
+
+3. الهاتف والحاسوب على **نفس الواي فاي**: افتح تطبيق طبختي. من شاشة التطوير امسح رمز QR الظاهر في الطرفية، أو اختر الخادم الذي يظهر على الشبكة. اترك أمر الطرفية يعمل.
+4. الهاتف على بيانات الجوال، أو على شبكة لا تصل إلى الحاسوب: شغّل نفقاً عبر الإنترنت:
+
+```bash
+npx expo start --dev-client --tunnel
+```
+
+أو `npm run tunnel`. انتظر حتى يظهر رابط النفق ثم افتحه من شاشة التطوير في التطبيق. الاتصال الأول قد يأخذ نصف دقيقة.
+
+5. بعد الاتصال، حفظ ملف في المشروع يعيد تحميل التطبيق. لإعادة التحميل يدوياً اضغط `r` في الطرفية، أو رجّ الهاتف وافتح قائمة المطوّر.
+
+إغلاق الطرفية يوقف تحميل التعديلات. التطبيق يبقى مثبتاً، وتعيد تشغيل الأمر عندما تريد المتابعة. بدون `--tunnel` يجب أن يصل الهاتف إلى منفذ `8081` على الحاسوب.
+
+## Install the Android development build
+
+The installable file is [`release/tabkha-dev-client.apk`](release/tabkha-dev-client.apk). It is a debug **Expo Dev Client** for arm64 phones, signed with the Android debug key. It is the native shell; JavaScript comes from the dev server on your computer, which is how live edits reach the phone.
+
+1. Copy the APK to the phone and open it. Allow installation from that source if Android asks.
+2. On the computer, in this project:
+
+```bash
+npm install
+npx expo start --dev-client
+```
+
+3. Same Wi-Fi: open طبختي, then scan the terminal QR code from the dev-client screen, or pick the server discovered on the LAN. Leave the terminal running.
+4. Phone on cellular data, or on a network that cannot reach the computer:
+
+```bash
+npx expo start --dev-client --tunnel
+```
+
+Wait for the tunnel URL, then open it from the dev-client screen. The first tunnel can take a little while.
+
+5. Saving a file reloads the app. Press `r` in the terminal to reload manually, or shake the phone for the developer menu.
+
+Stop the terminal and the phone stops receiving new code. Start the command again to reconnect. Without `--tunnel`, the phone must be able to reach port `8081` on the computer.
+
+To rebuild this APK locally (no Expo account):
 
 ```bash
 npx expo prebuild --platform android
-cd android && ./gradlew assembleDebug
+cd android && ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
 ```
 
-The debug APK is installable with `adb install`. When a build is produced in this repo it is copied to `release/tabkha.apk`.
+Copy `android/app/build/outputs/apk/debug/app-debug.apk` to `release/tabkha-dev-client.apk`. `eas.json` also has a `development` profile (`developmentClient: true`, debug APK) for `eas build -p android --profile development`.
 
 ## Project map
 
