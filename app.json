@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "طبختي",
+    "slug": "tabkha",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "tabkha",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tabkha.app"
+    },
+    "android": {
+      "package": "com.tabkha.app",
+      "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFF9F5"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#FFF9F5"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#D98C6A"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "طبختي تحتاج الوصول للصور لإرفاق صورة الطبق.",
+          "cameraPermission": "طبختي تحتاج الكاميرا لتصوير الطبق."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    },
+    "extra": {
+      "supportsRTL": true
+    }
+  }
+}
