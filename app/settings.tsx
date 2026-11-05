@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Switch, View } from 'react-native';
-import { AppText, Button, Field, Notice, Screen } from '../src/components/ui';
+import { AppText, BackButton, Button, Field, Notice, Screen } from '../src/components/ui';
 import { normalizePhone } from '../src/core/phone';
 import { syncShoppingReminder } from '../src/notifications/reminder';
 import { useApp } from '../src/state/AppProvider';
-import { colors, fonts } from '../src/theme';
+import { colors, fonts, rtl } from '../src/theme';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -75,7 +75,7 @@ export default function SettingsScreen() {
 
   return (
     <Screen>
-      <Button label="رجوع" variant="quiet" onPress={() => router.back()} />
+      <BackButton onPress={() => router.back()} />
       <AppText style={styles.title}>الإعدادات</AppText>
 
       <View style={styles.card}>
@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 16,
     gap: 10,
+    ...rtl,
   },
   section: {
     fontFamily: fonts.bold,
@@ -196,10 +197,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    ...rtl,
   },
   clock: {
     flexDirection: 'row',
     gap: 10,
+    ...rtl,
   },
   grow: {
     flex: 1,

@@ -16,3 +16,8 @@ export const fonts = {
   semibold: 'Cairo_600SemiBold',
   bold: 'Cairo_700Bold',
 };
+
+/** Applied on screens and rows so Arabic layout stays RTL even before a native reload. */
+export const rtl = {
+  direction: 'rtl' as const,
+};

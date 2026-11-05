@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { AppText, Button, CategoryChips, Field, IconButton, Notice, Screen, TopBar } from '../../src/components/ui';
 import { useApp } from '../../src/state/AppProvider';
 import { CATEGORIES, CATEGORY_LABELS, type IngredientCategory } from '../../src/types';
-import { colors, fonts } from '../../src/theme';
+import { colors, fonts, rtl } from '../../src/theme';
 
 export default function FridgeScreen() {
   const router = useRouter();
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 16,
     gap: 10,
+    ...rtl,
   },
   hint: {
     color: colors.muted,
@@ -101,6 +102,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    ...rtl,
   },
   copy: {
     flex: 1,

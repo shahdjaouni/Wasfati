@@ -8,7 +8,7 @@ import { buildShoppingMessage } from '../../src/core/shopping';
 import { categoryLabel } from '../../src/core/text';
 import { useApp } from '../../src/state/AppProvider';
 import type { IngredientCategory } from '../../src/types';
-import { colors, fonts } from '../../src/theme';
+import { colors, fonts, rtl } from '../../src/theme';
 
 export default function ShoppingScreen() {
   const router = useRouter();
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 16,
     gap: 10,
+    ...rtl,
   },
   empty: {
     color: colors.muted,
@@ -116,6 +117,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    ...rtl,
   },
   check: {
     width: 26,

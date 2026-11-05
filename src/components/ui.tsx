@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CATEGORIES, CATEGORY_LABELS, type IngredientCategory } from '../types';
-import { colors, fonts } from '../theme';
+import { colors, fonts, rtl } from '../theme';
 
 export function AppText({ style, ...props }: TextProps) {
   return <Text {...props} style={[styles.text, style]} />;
@@ -23,12 +23,21 @@ export function Screen({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   return (
     <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 28 }]}
+      style={[styles.screen, rtl]}
+      contentContainerStyle={[styles.content, rtl, { paddingTop: insets.top + 12, paddingBottom: 28 }]}
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.page}>{children}</View>
     </ScrollView>
+  );
+}
+
+export function BackButton({ onPress }: { onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel="رجوع" onPress={onPress} hitSlop={8} style={styles.back}>
+      <Feather name="chevron-right" size={22} color={colors.text} />
+      <AppText style={styles.backLabel}>رجوع</AppText>
+    </Pressable>
   );
 }
 
@@ -182,6 +191,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 20,
     gap: 16,
+    ...rtl,
   },
   text: {
     color: colors.text,
@@ -191,11 +201,23 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
     textAlign: 'right',
   },
+  back: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 2,
+    ...rtl,
+  },
+  backLabel: {
+    fontFamily: fonts.semibold,
+    fontSize: 16,
+  },
   top: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 4,
+    ...rtl,
   },
   brand: {
     fontFamily: fonts.bold,
@@ -269,6 +291,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    ...rtl,
   },
   chip: {
     borderRadius: 999,

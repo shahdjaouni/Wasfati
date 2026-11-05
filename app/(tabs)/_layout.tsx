@@ -1,25 +1,37 @@
 import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { colors, fonts } from '../../src/theme';
+import { Platform, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, fonts, rtl } from '../../src/theme';
+
+const TAB_CONTENT_HEIGHT = 52;
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  // Sit above the gesture bar or 3-button nav, plus a little air so labels are not flush with it.
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 20 : 0) + 8;
+
   return (
     <Tabs
+      safeAreaInsets={{ bottom: bottomInset }}
       screenOptions={{
         headerShown: false,
+        sceneStyle: [{ backgroundColor: colors.background }, rtl],
         tabBarActiveTintColor: colors.button,
         tabBarInactiveTintColor: colors.faint,
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.line,
-          height: 68,
-          paddingBottom: 8,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          height: TAB_CONTENT_HEIGHT + bottomInset,
           paddingTop: 6,
-          direction: 'rtl',
+          paddingBottom: bottomInset,
+          ...rtl,
         },
         tabBarLabelStyle: {
           fontFamily: fonts.semibold,
           fontSize: 12,
+          writingDirection: 'rtl',
         },
       }}
     >

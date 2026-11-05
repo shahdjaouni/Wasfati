@@ -1,8 +1,9 @@
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText, Button, DishAvatar, Screen, TopBar } from '../../src/components/ui';
 import { useApp } from '../../src/state/AppProvider';
-import { colors, fonts } from '../../src/theme';
+import { colors, fonts, rtl } from '../../src/theme';
 
 export default function RecipesScreen() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function RecipesScreen() {
             <AppText style={styles.name}>{recipe.name}</AppText>
             <AppText style={styles.meta}>{recipe.ingredients.length} مكونات</AppText>
           </View>
+          <Feather name="chevron-left" size={18} color={colors.faint} />
         </Pressable>
       ))}
     </Screen>
@@ -39,6 +41,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    ...rtl,
   },
   copy: {
     flex: 1,

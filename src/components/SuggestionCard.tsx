@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { IngredientLink } from '../types';
 import { formatProgress } from '../core/match';
-import { colors, fonts } from '../theme';
+import { colors, fonts, rtl } from '../theme';
 import { AppText, Button, DishAvatar, IconButton } from './ui';
 
 export function SuggestionCard({
@@ -96,11 +96,13 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 22,
     gap: 10,
+    ...rtl,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
+    ...rtl,
   },
   heading: {
     flex: 1,
@@ -124,6 +126,8 @@ const styles = StyleSheet.create({
     borderRadius: 99,
     backgroundColor: colors.white,
     overflow: 'hidden',
+    flexDirection: 'row',
+    ...rtl,
   },
   fill: {
     height: '100%',
@@ -146,6 +150,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    ...rtl,
   },
   dot: {
     width: 8,

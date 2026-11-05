@@ -2,10 +2,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { AppText, Button, CategoryChips, DishAvatar, Field, IconButton, Notice, Screen } from '../../src/components/ui';
+import { AppText, BackButton, Button, CategoryChips, DishAvatar, Field, IconButton, Notice, Screen } from '../../src/components/ui';
 import { useApp } from '../../src/state/AppProvider';
 import { createId, type Ingredient, type IngredientCategory, type Recipe } from '../../src/types';
-import { colors, fonts } from '../../src/theme';
+import { colors, fonts, rtl } from '../../src/theme';
 
 interface DraftIngredient {
   key: string;
@@ -44,7 +44,7 @@ function MissingRecipe() {
   const router = useRouter();
   return (
     <Screen>
-      <Button label="رجوع" variant="quiet" onPress={() => router.back()} />
+      <BackButton onPress={() => router.back()} />
       <AppText>لم نجد هذه الوصفة.</AppText>
     </Screen>
   );
@@ -132,7 +132,7 @@ function RecipeForm({ recipeId, existing }: { recipeId: string; existing?: Recip
 
   return (
     <Screen>
-      <Button label="رجوع" variant="quiet" onPress={() => router.back()} />
+      <BackButton onPress={() => router.back()} />
       <AppText style={styles.title}>{isNew ? 'وصفة جديدة' : 'تعديل الوصفة'}</AppText>
 
       <View style={styles.photoRow}>
@@ -248,6 +248,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    ...rtl,
   },
   photoActions: {
     flex: 1,
@@ -258,11 +259,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 12,
     gap: 8,
+    ...rtl,
   },
   inline: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    ...rtl,
   },
   grow: {
     flex: 1,
