@@ -28,7 +28,15 @@ npm run typecheck
 
 `npm run web` opens a browser preview. iOS simulator (macOS): `npm run ios`.
 
-The Android app on a phone uses the development build below, not Expo Go. The installed APK is a shell; the screens load from your computer so edits show up live.
+لتجربة التطبيق على الهاتف بدون حاسوب، ثبّت نسخة المعاينة أدناه. نسخة التطوير تبقى لمن يريد رؤية التعديلات مباشرة من Metro.
+
+## نسخة المعاينة (بدون خادم تطوير)
+
+ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (حوالي 38 ميغابايت، معالج arm64 فقط).
+
+هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
+
+تُوقَّع بمفتاح تصحيح أندرويد حتى يمكن تثبيتها مباشرة، وليست نسخة متجر. الحزمة `com.tabkha.app`.
 
 ## تثبيت نسخة التطوير على أندرويد
 
@@ -58,6 +66,14 @@ npx expo start --dev-client --tunnel
 5. بعد الاتصال، حفظ ملف في المشروع يعيد تحميل التطبيق. لإعادة التحميل يدوياً اضغط `r` في الطرفية، أو رجّ الهاتف وافتح قائمة المطوّر.
 
 إغلاق الطرفية يوقف تحميل التعديلات. التطبيق يبقى مثبتاً، وتعيد تشغيل الأمر عندما تريد المتابعة. بدون `--tunnel` يجب أن يصل الهاتف إلى منفذ `8081` على الحاسوب.
+
+## Standalone preview APK
+
+The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (about 38 MB, arm64-v8a only). JavaScript is bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL.
+
+Copy it to a 64-bit Android phone and open it. Allow installation from that source if Android asks. It is signed with the Android debug key so it can be sideloaded; it is not a Play Store build. Package name: `com.tabkha.app`.
+
+Built locally with `./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a` after `npx expo prebuild --platform android` (the same shape as the `preview` profile in `eas.json`: an internal APK, not a dev client).
 
 ## Install the Android development build
 
