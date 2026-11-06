@@ -2,7 +2,7 @@
   "expo": {
     "name": "طبختي",
     "slug": "tabkha",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "tabkha",
@@ -13,11 +13,12 @@
       "bundleIdentifier": "com.tabkha.app"
     },
     "android": {
+      "versionCode": 2,
       "package": "com.tabkha.app",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFF9F5"
+        "backgroundColor": "#F4F5F0"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -35,13 +36,13 @@
         {
           "image": "./assets/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#FFF9F5"
+          "backgroundColor": "#F4F5F0"
         }
       ],
       [
         "expo-notifications",
         {
-          "color": "#D98C6A"
+          "color": "#2F5D3A"
         }
       ],
       [

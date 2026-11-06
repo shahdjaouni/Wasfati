@@ -1,4 +1,4 @@
-import { Cairo_400Regular, Cairo_600SemiBold, Cairo_700Bold, useFonts } from '@expo-google-fonts/cairo';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -21,9 +21,10 @@ if (!I18nManager.isRTL) {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    Cairo_400Regular,
-    Cairo_600SemiBold,
-    Cairo_700Bold,
+    Alexandria_700Bold: require('../assets/fonts/Alexandria-700.ttf'),
+    IBMPlexSansArabic_400Regular: require('../assets/fonts/IBMPlexSansArabic-400.ttf'),
+    IBMPlexSansArabic_500Medium: require('../assets/fonts/IBMPlexSansArabic-500.ttf'),
+    IBMPlexSansArabic_600SemiBold: require('../assets/fonts/IBMPlexSansArabic-600.ttf'),
   });
 
   useEffect(() => {

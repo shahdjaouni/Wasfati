@@ -220,25 +220,30 @@ const styles = StyleSheet.create({
     ...rtl,
   },
   brand: {
-    fontFamily: fonts.bold,
+    fontFamily: fonts.heading,
     fontSize: 28,
-    lineHeight: 40,
+    lineHeight: 42,
   },
   button: {
-    minHeight: 52,
-    borderRadius: 18,
+    minHeight: 54,
+    borderRadius: 16,
     backgroundColor: colors.button,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 8,
     paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.button,
   },
   buttonSecondary: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
   },
   buttonQuiet: {
     backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    minHeight: 44,
   },
   buttonDisabled: {
     opacity: 0.45,
@@ -265,6 +270,8 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.white,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontFamily: fonts.regular,
@@ -298,9 +305,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   chipOn: {
     backgroundColor: colors.button,
+    borderColor: colors.button,
   },
   chipText: {
     fontFamily: fonts.semibold,
@@ -311,12 +321,12 @@ const styles = StyleSheet.create({
     color: colors.buttonText,
   },
   notice: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.soft,
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 14,
-    color: colors.muted,
+    color: colors.primaryDark,
   },
   empty: {
     color: colors.muted,

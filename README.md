@@ -32,11 +32,11 @@ npm run typecheck
 
 ## نسخة المعاينة (بدون خادم تطوير)
 
-ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (حوالي 38 ميغابايت، معالج arm64 فقط).
+ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (حوالي 38 ميغابايت، معالج arm64 فقط، الإصدار 1.1.0).
 
-هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
+هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. صفحة اليوم والشريط السفلي على الهوية الخضراء الجديدة. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. إذا كان إصدار 1.0.0 مثبتاً، التثبيت يحدّثه ويُبقي الوصفات والثلاجة. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
 
-تُوقَّع بمفتاح تصحيح أندرويد حتى يمكن تثبيتها مباشرة، وليست نسخة متجر. الحزمة `com.tabkha.app`.
+تُوقَّع بمفتاح تصحيح أندرويد نفسه حتى يقدر التحديث يمر، وليست نسخة متجر. الحزمة `com.tabkha.app`.
 
 ## تثبيت نسخة التطوير على أندرويد
 
@@ -69,9 +69,9 @@ npx expo start --dev-client --tunnel
 
 ## Standalone preview APK
 
-The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (about 38 MB, arm64-v8a only). JavaScript is bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL.
+The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (about 38 MB, arm64-v8a only, version 1.1.0, versionCode 2). JavaScript is bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL. This build includes the green home screen and the five-item tab bar.
 
-Copy it to a 64-bit Android phone and open it. Allow installation from that source if Android asks. It is signed with the Android debug key so it can be sideloaded; it is not a Play Store build. Package name: `com.tabkha.app`.
+Copy it to a 64-bit Android phone and open it. Installing over the 1.0.0 preview keeps local recipes and pantry data. Allow installation from that source if Android asks. It is signed with the same Android debug key so the update can replace the previous preview; it is not a Play Store build. Package name: `com.tabkha.app`.
 
 Built locally with `./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a` after `npx expo prebuild --platform android` (the same shape as the `preview` profile in `eas.json`: an internal APK, not a dev client).
 
