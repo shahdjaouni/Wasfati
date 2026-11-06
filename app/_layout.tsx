@@ -3,21 +3,17 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { DevSettings, I18nManager, Platform, View } from 'react-native';
+import { I18nManager, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from '../src/state/AppProvider';
 import { colors, rtl } from '../src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
+// Persisted for the next process. MainApplication sets the same flags before
+// React starts, so an update is RTL on the first frame and nothing reloads.
 I18nManager.allowRTL(true);
-if (!I18nManager.isRTL) {
-  I18nManager.forceRTL(true);
-  // forceRTL is read on the next JS start. One reload applies it; after that isRTL stays true.
-  if (__DEV__ && Platform.OS !== 'web') {
-    setTimeout(() => DevSettings.reload(), 50);
-  }
-}
+I18nManager.forceRTL(true);
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({

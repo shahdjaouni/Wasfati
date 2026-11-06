@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '../../src/components/ui';
+import { TAB_TITLES } from '../../src/rtl/textDirection';
 import { colors, fonts, rtl } from '../../src/theme';
 
 const TAB_CONTENT_HEIGHT = 58;
@@ -56,7 +57,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'اليوم',
+          title: TAB_TITLES[0],
           tabBarIcon: ({ color, focused }) => (
             <TabGlyph focused={focused}>
               <Feather name="sun" size={18} color={String(color)} />
@@ -67,7 +68,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="plan"
         options={{
-          title: 'الخطة',
+          title: TAB_TITLES[1],
           tabBarIcon: ({ color, focused }) => (
             <TabGlyph focused={focused}>
               <Feather name="calendar" size={18} color={String(color)} />
@@ -78,7 +79,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="recipes"
         options={{
-          title: 'وصفاتي',
+          title: TAB_TITLES[2],
           tabBarIcon: ({ color, focused }) => (
             <TabGlyph focused={focused}>
               <Feather name="book-open" size={18} color={String(color)} />
@@ -89,7 +90,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="fridge"
         options={{
-          title: 'ثلاجتي',
+          title: TAB_TITLES[3],
           tabBarIcon: ({ color, focused }) => (
             <TabGlyph focused={focused}>
               <FridgeIcon color={String(color)} />
@@ -100,7 +101,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shopping"
         options={{
-          title: 'المشتريات',
+          title: TAB_TITLES[4],
           tabBarIcon: ({ color, focused }) => (
             <TabGlyph focused={focused}>
               <Feather name="shopping-bag" size={18} color={String(color)} />

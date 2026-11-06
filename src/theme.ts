@@ -1,4 +1,5 @@
-import { Platform, type ViewStyle } from 'react-native';
+import { Platform, type TextStyle, type ViewStyle } from 'react-native';
+import { containerDirectionStyle, paragraphTextStyle } from './rtl/textDirection';
 
 export const colors = {
   background: '#F4F5F0',
@@ -32,11 +33,10 @@ export const fonts = {
   bold: 'Alexandria_700Bold',
 };
 
-/**
- * Native layout uses `direction`. React Native Web rejects that key and
- * compiles `writingDirection` into CSS direction instead.
- */
-export const rtl: ViewStyle =
-  Platform.OS === 'web'
-    ? ({ writingDirection: 'rtl' } as ViewStyle)
-    : { direction: 'rtl' };
+const runtimePlatform = Platform.OS === 'web' ? 'web' : 'native';
+
+/** Row direction. Native RTL comes from this plus I18nManager, not from reversed strings. */
+export const rtl: ViewStyle = containerDirectionStyle(runtimePlatform);
+
+/** Paragraph direction. Native must stay empty so Arabic is not drawn on the end edge. */
+export const paragraph: TextStyle = paragraphTextStyle(runtimePlatform);

@@ -1,6 +1,9 @@
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, type ViewStyle } from 'react-native';
 import { colors, fonts, rtl } from '../theme';
+
+/** Keep the plate's coordinates physical. Native RTL rewrites `left` into `start`. */
+const physical: ViewStyle = Platform.OS === 'web' ? {} : { direction: 'ltr' };
 import { AppText } from './ui';
 
 /** Flat plate illustration in the design's geometric style. It is not a photo of the dish. */
@@ -33,7 +36,7 @@ const styles = StyleSheet.create({
   badge: {
     position: 'absolute',
     top: 12,
-    right: 12,
+    start: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -56,6 +59,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F6EFE2',
     borderWidth: 6,
     borderColor: '#E7D3B0',
+    ...physical,
   },
   floret: {
     position: 'absolute',

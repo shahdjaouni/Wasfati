@@ -32,7 +32,7 @@ npm run typecheck
 
 ## نسخة المعاينة (بدون خادم تطوير)
 
-ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (حوالي 38 ميغابايت، معالج arm64 فقط، الإصدار 1.1.0).
+ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (39,932,973 بايت، معالج arm64 فقط، الإصدار 1.1.1، versionCode 3).
 
 هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. صفحة اليوم والشريط السفلي على الهوية الخضراء الجديدة. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. إذا كان إصدار 1.0.0 مثبتاً، التثبيت يحدّثه ويُبقي الوصفات والثلاجة. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
 
@@ -69,7 +69,7 @@ npx expo start --dev-client --tunnel
 
 ## Standalone preview APK
 
-The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (about 38 MB, arm64-v8a only, version 1.1.0, versionCode 2). JavaScript is bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL. This build includes the green home screen and the five-item tab bar.
+The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (39,932,973 bytes, arm64-v8a only, version 1.1.1, versionCode 3). JavaScript and the Arabic fonts are bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL. This build keeps the green home screen and fixes native RTL text so Arabic, counts, and the five tabs read from the right.
 
 Copy it to a 64-bit Android phone and open it. Installing over the 1.0.0 preview keeps local recipes and pantry data. Allow installation from that source if Android asks. It is signed with the same Android debug key so the update can replace the previous preview; it is not a Play Store build. Package name: `com.tabkha.app`.
 

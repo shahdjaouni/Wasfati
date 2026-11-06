@@ -2,7 +2,7 @@
   "expo": {
     "name": "طبختي",
     "slug": "tabkha",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "tabkha",
@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.tabkha.app"
     },
     "android": {
-      "versionCode": 2,
+      "versionCode": 3,
       "package": "com.tabkha.app",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
@@ -45,6 +45,7 @@
           "color": "#2F5D3A"
         }
       ],
+      "./plugins/withAndroidRtl.js",
       [
         "expo-image-picker",
         {

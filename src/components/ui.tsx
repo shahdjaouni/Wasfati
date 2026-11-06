@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CATEGORIES, CATEGORY_LABELS, type IngredientCategory } from '../types';
-import { colors, fonts, rtl } from '../theme';
+import { colors, fonts, paragraph, rtl } from '../theme';
 
 export function AppText({ style, ...props }: TextProps) {
   return <Text {...props} style={[styles.text, style]} />;
@@ -198,8 +198,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: 16,
     lineHeight: 24,
-    writingDirection: 'rtl',
-    textAlign: 'right',
+    ...paragraph,
   },
   back: {
     flexDirection: 'row',
@@ -277,8 +276,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: 16,
     color: colors.text,
-    textAlign: 'right',
-    writingDirection: 'rtl',
+    ...paragraph,
   },
   multiline: {
     minHeight: 88,
