@@ -1,4 +1,4 @@
-import type { AppData, DishKind, Ingredient, PantryItem, Recipe, Settings } from '../types';
+import type { AppData, DishKind, Ingredient, PantryItem, PlanSlot, Recipe, Settings } from '../types';
 import { createId } from '../types';
 import { createSeedData } from '../core/seed';
 import { mergeIntoShopping } from '../core/shopping';
@@ -138,6 +138,22 @@ export class Repository {
   }
 
   /** Records today as cooked. Cooking again the same day keeps a single check. */
+  /** Replaces the recipe on one day and keeps assignments from other days. */
+  async assignPlan(date: string, recipeId: string): Promise<AppData> {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !recipeId) return this.load();
+    return this.setWeekPlan([date], [{ date, recipeId }]);
+  }
+
+  /** Writes the given days and leaves every other stored day alone. */
+  async setWeekPlan(dates: string[], slots: PlanSlot[]): Promise<AppData> {
+    const replace = new Set(dates.filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)));
+    const next = slots.filter((slot) => replace.has(slot.date) && slot.recipeId);
+    return this.update((data) => ({
+      ...data,
+      plan: [...data.plan.filter((slot) => !replace.has(slot.date)), ...next],
+    }));
+  }
+
   async markCooked(recipeId: string, recipeName: string): Promise<AppData> {
     const name = cleanText(recipeName);
     if (!recipeId || !name) return this.load();
@@ -166,6 +182,7 @@ export class Repository {
       pantry: [],
       shopping: [],
       cookLog: [],
+      plan: [],
     }));
   }
 

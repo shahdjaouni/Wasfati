@@ -139,7 +139,7 @@ export default function SettingsScreen() {
         <AppText style={styles.section}>هدف الطبخ</AppText>
         <Field label="أيام بالأسبوع" value={goal} onChangeText={setGoal} keyboardType="number-pad" />
         <AppText style={styles.help}>
-          كم يوم بدك تطبخي من السبت للجمعة. الافتراضي 3، وهذا رقم «من» في خطة هالأسبوع. الضغط على يلا نطبخها أو طبختها اليوم بيسجّل ذلك اليوم.
+          نفس رقم «كم مرة بدك تطبخي بالأسبوع؟» في تاب الخطة، وهو رقم «من» على اليوم. إذا غيّرتي العدد هنا، أيام الخطة بترجع للافتراضي لهذا العدد. اختيار الأيام نفسه من تاب الخطة.
         </AppText>
       </View>
 

@@ -135,6 +135,7 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
     pantry,
     shopping: [],
     cookLog: [],
+    plan: [],
     settings: defaultSettings(),
     initialized: true,
   };

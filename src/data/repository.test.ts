@@ -28,6 +28,7 @@ describe('local repository', () => {
     const stayedEmpty = await repo.load();
     expect(stayedEmpty.recipes).toEqual([]);
     expect(stayedEmpty.cookLog).toEqual([]);
+    expect(stayedEmpty.plan).toEqual([]);
   });
 
   it('keeps older recipes and pantry items, and records one cook per day', async () => {
@@ -86,6 +87,10 @@ describe('local repository', () => {
     expect(loaded.pantry.find((item) => item.id === 'dated')?.addedAt).toBe('2026-11-01T00:00:00.000Z');
     expect(loaded.pantry.find((item) => item.id === 'plain')?.addedAt).toBeUndefined();
     expect(loaded.settings.weeklyGoal).toBe(3);
+    expect(loaded.settings.planDays).toEqual([1, 3, 6]);
+    expect(loaded.settings.planPeople).toBe(4);
+    expect(loaded.settings.planDouble).toBe(false);
+    expect(loaded.plan).toEqual([]);
     expect(loaded.cookLog).toEqual([{ date: '2026-11-07', recipeId: 'old', recipeName: 'مقلوبة خضار' }]);
 
     const once = await repo.markCooked('old', 'مقلوبة خضار');

@@ -68,9 +68,22 @@ export interface Settings {
   aiModel: string;
   /**
    * How many days this week (Saturday–Friday) the cook wants to cook.
-   * The home caption is cooked days ÷ this goal. Default 3.
+   * This is the plan frequency (مرة … يومياً) and the home caption's «من».
+   * Default 3. The selected weekdays live in `planDays` and stay the same length.
    */
   weeklyGoal: number;
+  /** Saturday = 0 through Friday = 6. Length matches `weeklyGoal`. */
+  planDays: number[];
+  /** People the week's meals are cooked for. Display only; recipe minutes stay as saved. */
+  planPeople: number;
+  /** Cook a double batch. Each planned day except Friday notes leftovers for the next day. */
+  planDouble: boolean;
+}
+
+/** A recipe assigned to one calendar day. Other weeks stay stored. */
+export interface PlanSlot {
+  date: string;
+  recipeId: string;
 }
 
 export interface AppData {
@@ -79,6 +92,7 @@ export interface AppData {
   shopping: ShoppingItem[];
   settings: Settings;
   cookLog: CookEntry[];
+  plan: PlanSlot[];
   initialized: true;
 }
 
@@ -118,6 +132,9 @@ export function defaultSettings(): Settings {
     aiBaseUrl: 'https://api.openai.com/v1',
     aiModel: 'gpt-4o-mini',
     weeklyGoal: 3,
+    planDays: [1, 3, 6],
+    planPeople: 4,
+    planDouble: false,
   };
 }
 

@@ -4,6 +4,7 @@ import {
   type CookEntry,
   type DishKind,
   type PantryItem,
+  type PlanSlot,
   type Recipe,
   type Settings,
 } from '../types';
@@ -60,6 +61,19 @@ export function migrateCookLog(value: unknown): CookEntry[] {
   return [...byDate.values()];
 }
 
+export function migratePlan(value: unknown): PlanSlot[] {
+  if (!Array.isArray(value)) return [];
+  const byDate = new Map<string, PlanSlot>();
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') continue;
+    const raw = entry as PlanSlot;
+    if (typeof raw.date !== 'string' || !DAY_KEY.test(raw.date)) continue;
+    if (typeof raw.recipeId !== 'string' || !raw.recipeId) continue;
+    byDate.set(raw.date, { date: raw.date, recipeId: raw.recipeId });
+  }
+  return [...byDate.values()];
+}
+
 export function migrateApp(parsed: Partial<AppData>): AppData {
   return {
     recipes: Array.isArray(parsed.recipes)
@@ -71,6 +85,7 @@ export function migrateApp(parsed: Partial<AppData>): AppData {
     shopping: Array.isArray(parsed.shopping) ? parsed.shopping : [],
     settings: sanitizeSettings(parsed.settings ?? defaultSettings()),
     cookLog: migrateCookLog(parsed.cookLog),
+    plan: migratePlan(parsed.plan),
     initialized: true,
   };
 }

@@ -20,7 +20,9 @@ const MONTHS = [
 ] as const;
 
 /** Saturday-first short labels. Index 0 is Saturday. */
-const SHORT_DAYS = ['سبت', 'أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة'] as const;
+export const SHORT_DAYS = ['سبت', 'أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة'] as const;
+
+export { MONTHS };
 
 export interface WeekDay {
   key: string;

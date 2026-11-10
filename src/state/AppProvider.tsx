@@ -1,10 +1,11 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import type { AppData, Ingredient, PantryItem, Settings } from '../types';
+import type { AppData, Ingredient, PantryItem, PlanSlot, Settings } from '../types';
 import { defaultSettings } from '../types';
 import { deviceStorage } from '../data/asyncStorage';
 import { MemoryStorage, Repository, STORAGE_KEY, type RecipeInput } from '../data/repository';
 import { readApiKey, writeApiKey } from '../data/secureKey';
 import { createHomeSample, isHomeSampleRequest } from '../home/sampleHome';
+import { createPlanSample, isPlanSampleRequest } from '../plan/samplePlan';
 
 interface AppState {
   ready: boolean;
@@ -13,6 +14,7 @@ interface AppState {
   shopping: AppData['shopping'];
   settings: Settings;
   cookLog: AppData['cookLog'];
+  plan: PlanSlot[];
   apiKey: string | null;
   saveRecipe: (input: RecipeInput, id?: string) => Promise<void>;
   deleteRecipe: (id: string) => Promise<void>;
@@ -23,6 +25,9 @@ interface AppState {
   deleteShopping: (id: string) => Promise<void>;
   clearChecked: () => Promise<void>;
   markCooked: (recipeId: string, recipeName: string) => Promise<void>;
+  updateSettings: (settings: Settings) => Promise<void>;
+  assignPlan: (date: string, recipeId: string) => Promise<void>;
+  setWeekPlan: (dates: string[], slots: PlanSlot[]) => Promise<void>;
   saveSettings: (settings: Settings, apiKey: string) => Promise<void>;
   resetSamples: () => Promise<void>;
   clearContent: () => Promise<void>;
@@ -40,9 +45,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
     const boot = (async () => {
-      if (isHomeSampleRequest()) {
+      if (isPlanSampleRequest() || isHomeSampleRequest()) {
         const storage = new MemoryStorage();
-        await storage.setItem(STORAGE_KEY, JSON.stringify(createHomeSample(new Date())));
+        const sample = isPlanSampleRequest() ? createPlanSample(new Date()) : createHomeSample(new Date());
+        await storage.setItem(STORAGE_KEY, JSON.stringify(sample));
         repoRef.current = new Repository(storage);
       }
       return Promise.all([repoRef.current.load(), readApiKey()]);
@@ -70,6 +76,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       shopping: data?.shopping ?? [],
       settings: data?.settings ?? defaultSettings(),
       cookLog: data?.cookLog ?? [],
+      plan: data?.plan ?? [],
       apiKey,
       async saveRecipe(input, id) {
         setData(await repoRef.current.saveRecipe(input, id));
@@ -99,6 +106,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       },
       async markCooked(recipeId, recipeName) {
         setData(await repoRef.current.markCooked(recipeId, recipeName));
+      },
+      async updateSettings(settings) {
+        setData(await repoRef.current.updateSettings(settings));
+      },
+      async assignPlan(date, recipeId) {
+        setData(await repoRef.current.assignPlan(date, recipeId));
+      },
+      async setWeekPlan(dates, slots) {
+        setData(await repoRef.current.setWeekPlan(dates, slots));
       },
       async saveSettings(settings, nextKey) {
         setData(await repoRef.current.updateSettings(settings));

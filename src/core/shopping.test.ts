@@ -61,6 +61,9 @@ describe('shopping list', () => {
         aiBaseUrl: 'https://api.openai.com/v1',
         aiModel: 'gpt-4o-mini',
         weeklyGoal: 3,
+        planDays: [1, 3, 6],
+        planPeople: 4,
+        planDouble: false,
       }),
     ).toBeNull();
 
@@ -73,6 +76,9 @@ describe('shopping list', () => {
         aiBaseUrl: 'https://api.openai.com/v1',
         aiModel: 'gpt-4o-mini',
         weeklyGoal: 3,
+        planDays: [1, 3, 6],
+        planPeople: 4,
+        planDouble: false,
       }),
     ).toMatchObject({
       hour: 23,

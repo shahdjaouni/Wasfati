@@ -39,6 +39,7 @@ export function createHomeSample(today: Date): AppData {
     initialized: true,
     settings: defaultSettings(),
     shopping: [],
+    plan: [],
     cookLog: cooked.map((day) => ({ date: day.key, recipeId: 'sample-maq', recipeName: 'مقلوبة قرنبيط' })),
     recipes: [
       recipe(

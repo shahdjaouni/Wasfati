@@ -8,6 +8,7 @@ import { WeekStrip } from '../../src/components/WeekStrip';
 import { AppText, Button, EmptyNote, Notice, Screen } from '../../src/components/ui';
 import { linkRecipeToPantry } from '../../src/core/match';
 import {
+  dayKey,
   findUseSoon,
   formatArabicDate,
   recipeMatchesFilter,
@@ -15,6 +16,7 @@ import {
   useSoonMessage,
   type HomeFilter,
 } from '../../src/home/today';
+import { plannedRecipeForToday } from '../../src/plan/plan';
 import { useApp } from '../../src/state/AppProvider';
 import type { DishSuggestion, Ingredient } from '../../src/types';
 import { colors, fonts, rtl } from '../../src/theme';
@@ -35,7 +37,7 @@ const EMPTY_FILTER: Record<HomeFilter, string> = {
 
 export default function TodayScreen() {
   const router = useRouter();
-  const { ready, recipes, pantry, settings, apiKey, cookLog, addShopping, markCooked } = useApp();
+  const { ready, recipes, pantry, settings, apiKey, cookLog, plan, addShopping, markCooked } = useApp();
   const [picked, setPicked] = useState<DishSuggestion | null>(null);
   const [excludeIds, setExcludeIds] = useState<string[]>([]);
   const [filter, setFilter] = useState<HomeFilter | null>(null);
@@ -44,13 +46,22 @@ export default function TodayScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const started = useRef(false);
   const today = useMemo(() => new Date(), []);
-  const snapshot = useRef({ recipes, pantry, settings, apiKey, filter });
-  snapshot.current = { recipes, pantry, settings, apiKey, filter };
+  const todayPlanId = plan.find((slot) => slot.date === dayKey(today))?.recipeId ?? '';
+  const snapshot = useRef({ recipes, pantry, settings, apiKey, filter, plan });
+  snapshot.current = { recipes, pantry, settings, apiKey, filter, plan };
 
   async function request(exclude: string[], active: HomeFilter | null) {
     const current = snapshot.current;
     const pool = recipesForFilter(current.recipes, current.pantry, active);
     setLoading(true);
+    const planned = plannedRecipeForToday(pool, current.plan, dayKey(today), current.pantry, null);
+    if (planned && exclude.length === 0) {
+      setPicked({ recipe: planned, source: 'local', note: 'من خطتك لهاليوم' });
+      setFilteredEmpty(false);
+      setExcludeIds([]);
+      setLoading(false);
+      return;
+    }
     if (active && pool.length === 0) {
       setPicked(null);
       setFilteredEmpty(true);
@@ -76,10 +87,14 @@ export default function TodayScreen() {
   }
 
   useEffect(() => {
-    if (!ready || started.current) return;
-    started.current = true;
-    void request([], null);
-  }, [ready]);
+    if (!ready) return;
+    if (!started.current) {
+      started.current = true;
+      void request([], null);
+      return;
+    }
+    void request([], snapshot.current.filter);
+  }, [ready, todayPlanId]);
 
   const recipe = useMemo(() => {
     if (!picked) return null;
