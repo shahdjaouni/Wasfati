@@ -1,10 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, View } from 'react-native';
 import { AppText, BackButton, Button, CategoryChips, DishAvatar, Field, IconButton, Notice, Screen } from '../../src/components/ui';
 import { useApp } from '../../src/state/AppProvider';
-import { createId, type Ingredient, type IngredientCategory, type Recipe } from '../../src/types';
+import { createId, DISH_KINDS, DISH_KIND_LABELS, type DishKind, type Ingredient, type IngredientCategory, type Recipe } from '../../src/types';
 import { colors, fonts, rtl } from '../../src/theme';
 
 interface DraftIngredient {
@@ -52,9 +52,13 @@ function MissingRecipe() {
 
 function RecipeForm({ recipeId, existing }: { recipeId: string; existing?: Recipe }) {
   const router = useRouter();
-  const { saveRecipe, deleteRecipe } = useApp();
+  const { saveRecipe, deleteRecipe, markCooked } = useApp();
   const isNew = recipeId === 'new';
   const [name, setName] = useState(existing?.name ?? '');
+  const [minutes, setMinutes] = useState(existing?.minutes ? String(existing.minutes) : '');
+  const [servings, setServings] = useState(existing?.servings ? String(existing.servings) : '');
+  const [kind, setKind] = useState<DishKind | null>(existing?.kind ?? null);
+  const [vegetarian, setVegetarian] = useState(existing?.vegetarian === true);
   const [photoUri, setPhotoUri] = useState<string | null>(existing?.photoUri ?? null);
   const [ingredients, setIngredients] = useState<DraftIngredient[]>(
     existing?.ingredients.map(toDraft) ?? [draftIngredient()],
@@ -123,8 +127,27 @@ function RecipeForm({ recipeId, existing }: { recipeId: string; existing?: Recip
       setNotice('أضف خطوة واحدة على الأقل');
       return;
     }
+    const parsedMinutes = optionalNumber(minutes);
+    const parsedServings = optionalNumber(servings);
+    if (minutes.trim() && parsedMinutes == null) {
+      setNotice('الدقائق رقم صحيح، أو اتركيها فارغة');
+      return;
+    }
+    if (servings.trim() && parsedServings == null) {
+      setNotice('عدد الأشخاص رقم صحيح، أو اتركيه فارغاً');
+      return;
+    }
     await saveRecipe(
-      { name, ingredients: cleanedIngredients, steps: cleanedSteps, photoUri },
+      {
+        name,
+        ingredients: cleanedIngredients,
+        steps: cleanedSteps,
+        photoUri,
+        minutes: parsedMinutes,
+        servings: parsedServings,
+        kind,
+        vegetarian,
+      },
       isNew ? undefined : existing?.id,
     );
     router.back();
@@ -145,6 +168,40 @@ function RecipeForm({ recipeId, existing }: { recipeId: string; existing?: Recip
       {photoUri ? <Button label="إزالة الصورة" variant="quiet" onPress={() => setPhotoUri(null)} /> : null}
 
       <Field label="الاسم" value={name} onChangeText={setName} placeholder="مجدرة" />
+      <View style={styles.inline}>
+        <View style={styles.grow}>
+          <Field label="الدقائق" value={minutes} onChangeText={setMinutes} keyboardType="number-pad" placeholder="اختياري" />
+        </View>
+        <View style={styles.grow}>
+          <Field label="الأشخاص" value={servings} onChangeText={setServings} keyboardType="number-pad" placeholder="اختياري" />
+        </View>
+      </View>
+      <AppText style={styles.section}>النوع</AppText>
+      <View style={styles.kinds}>
+        {DISH_KINDS.map((item) => {
+          const selected = kind === item;
+          return (
+            <Pressable
+              key={item}
+              accessibilityRole="button"
+              accessibilityState={{ selected }}
+              onPress={() => setKind(selected ? null : item)}
+              style={[styles.kind, selected && styles.kindOn]}
+            >
+              <AppText style={[styles.kindText, selected && styles.kindTextOn]}>{DISH_KIND_LABELS[item]}</AppText>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={styles.switchRow}>
+        <AppText style={styles.section}>نباتية</AppText>
+        <Switch
+          value={vegetarian}
+          onValueChange={setVegetarian}
+          trackColor={{ false: colors.accent, true: colors.button }}
+          thumbColor={colors.white}
+        />
+      </View>
 
       <AppText style={styles.section}>المكونات</AppText>
       {ingredients.map((ingredient) => (
@@ -200,6 +257,16 @@ function RecipeForm({ recipeId, existing }: { recipeId: string; existing?: Recip
       {notice ? <Notice>{notice}</Notice> : null}
       <Button label="حفظ الوصفة" onPress={() => void save()} />
       {!isNew && existing ? (
+        <Button
+          label="طبختها اليوم"
+          variant="secondary"
+          onPress={() => {
+            void markCooked(existing.id, name.trim() || existing.name);
+            setNotice('تسجّل اليوم في خطة هالأسبوع');
+          }}
+        />
+      ) : null}
+      {!isNew && existing ? (
         confirmDelete ? (
           <Button
             label="تأكيد الحذف"
@@ -215,6 +282,13 @@ function RecipeForm({ recipeId, existing }: { recipeId: string; existing?: Recip
       ) : null}
     </Screen>
   );
+}
+
+function optionalNumber(value: string): number | null {
+  if (!value.trim()) return null;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0 || parsed > 999) return null;
+  return parsed;
 }
 
 function toDraft(ingredient: Ingredient): DraftIngredient {
@@ -269,5 +343,37 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
+  },
+  kinds: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    ...rtl,
+  },
+  kind: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.white,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  kindOn: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  kindText: {
+    fontFamily: fonts.semibold,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  kindTextOn: {
+    color: colors.white,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...rtl,
   },
 });

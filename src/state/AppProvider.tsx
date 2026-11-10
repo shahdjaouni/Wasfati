@@ -1,16 +1,10 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { AppData, Ingredient, PantryItem, Settings } from '../types';
 import { defaultSettings } from '../types';
 import { deviceStorage } from '../data/asyncStorage';
+import { MemoryStorage, Repository, STORAGE_KEY, type RecipeInput } from '../data/repository';
 import { readApiKey, writeApiKey } from '../data/secureKey';
-import { Repository } from '../data/repository';
-
-type RecipeInput = {
-  name: string;
-  ingredients: Ingredient[];
-  steps: string[];
-  photoUri?: string | null;
-};
+import { createHomeSample, isHomeSampleRequest } from '../home/sampleHome';
 
 interface AppState {
   ready: boolean;
@@ -18,6 +12,7 @@ interface AppState {
   pantry: PantryItem[];
   shopping: AppData['shopping'];
   settings: Settings;
+  cookLog: AppData['cookLog'];
   apiKey: string | null;
   saveRecipe: (input: RecipeInput, id?: string) => Promise<void>;
   deleteRecipe: (id: string) => Promise<void>;
@@ -27,22 +22,32 @@ interface AppState {
   toggleShopping: (id: string) => Promise<void>;
   deleteShopping: (id: string) => Promise<void>;
   clearChecked: () => Promise<void>;
+  markCooked: (recipeId: string, recipeName: string) => Promise<void>;
   saveSettings: (settings: Settings, apiKey: string) => Promise<void>;
   resetSamples: () => Promise<void>;
   clearContent: () => Promise<void>;
 }
 
 const AppContext = createContext<AppState | null>(null);
-const repository = new Repository(deviceStorage);
+const sharedRepository = new Repository(deviceStorage);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const repoRef = useRef(sharedRepository);
 
   useEffect(() => {
     let active = true;
-    Promise.all([repository.load(), readApiKey()])
+    const boot = (async () => {
+      if (isHomeSampleRequest()) {
+        const storage = new MemoryStorage();
+        await storage.setItem(STORAGE_KEY, JSON.stringify(createHomeSample(new Date())));
+        repoRef.current = new Repository(storage);
+      }
+      return Promise.all([repoRef.current.load(), readApiKey()]);
+    })();
+    boot
       .then(([loaded, key]) => {
         if (!active) return;
         setData(loaded);
@@ -64,43 +69,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pantry: data?.pantry ?? [],
       shopping: data?.shopping ?? [],
       settings: data?.settings ?? defaultSettings(),
+      cookLog: data?.cookLog ?? [],
       apiKey,
       async saveRecipe(input, id) {
-        setData(await repository.saveRecipe(input, id));
+        setData(await repoRef.current.saveRecipe(input, id));
       },
       async deleteRecipe(id) {
-        setData(await repository.deleteRecipe(id));
+        setData(await repoRef.current.deleteRecipe(id));
       },
       async addPantryItem(item) {
-        setData(await repository.addPantryItem(item));
+        setData(await repoRef.current.addPantryItem(item));
       },
       async deletePantryItem(id) {
-        setData(await repository.deletePantryItem(id));
+        setData(await repoRef.current.deletePantryItem(id));
       },
       async addShopping(items) {
-        const result = await repository.addShopping(items);
+        const result = await repoRef.current.addShopping(items);
         setData(result.data);
         return result.added;
       },
       async toggleShopping(id) {
-        setData(await repository.toggleShopping(id));
+        setData(await repoRef.current.toggleShopping(id));
       },
       async deleteShopping(id) {
-        setData(await repository.deleteShopping(id));
+        setData(await repoRef.current.deleteShopping(id));
       },
       async clearChecked() {
-        setData(await repository.clearChecked());
+        setData(await repoRef.current.clearChecked());
+      },
+      async markCooked(recipeId, recipeName) {
+        setData(await repoRef.current.markCooked(recipeId, recipeName));
       },
       async saveSettings(settings, nextKey) {
-        setData(await repository.updateSettings(settings));
+        setData(await repoRef.current.updateSettings(settings));
         await writeApiKey(nextKey);
         setApiKey(nextKey.trim() ? nextKey.trim() : null);
       },
       async resetSamples() {
-        setData(await repository.resetSamples());
+        setData(await repoRef.current.resetSamples());
       },
       async clearContent() {
-        setData(await repository.clearContent());
+        setData(await repoRef.current.clearContent());
       },
     }),
     [apiKey, data, ready],

@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { availabilityLabel, ingredientCountLabel, missingLabel, suggestionBadge } from '../home/today';
+import { availabilityLabel, missingLabel, recipeMetaLine, suggestionBadge } from '../home/today';
 import type { IngredientLink } from '../types';
 import { colors, fonts, rtl } from '../theme';
 import { DishArt } from './DishArt';
@@ -28,13 +28,14 @@ export function TodaySuggestion({
 }) {
   const [stepsOpen, setStepsOpen] = useState(false);
   const ratio = link.total === 0 ? 0 : link.haveCount / link.total;
+  const meta = recipeMetaLine(link.recipe);
 
   return (
     <View style={styles.card}>
       <DishArt badge={suggestionBadge(link.haveCount)} />
       <View style={styles.body}>
         <AppText style={styles.name}>{link.recipe.name}</AppText>
-        {link.total > 0 ? <AppText style={styles.meta}>{ingredientCountLabel(link.total)}</AppText> : null}
+        {meta ? <AppText style={styles.meta}>{meta}</AppText> : null}
         {note ? <AppText style={styles.note}>{note}</AppText> : null}
 
         <View style={styles.progressRow}>
@@ -50,7 +51,7 @@ export function TodaySuggestion({
         <View style={styles.chips}>
           {link.have.map((item, index) => (
             <View key={`have-${item.name}-${index}`} style={[styles.chip, styles.chipHave]}>
-              <Feather name="check" size={13} color={colors.primary} />
+              <Feather name="check" size={13} color={colors.primaryDark} />
               <AppText style={styles.chipHaveText}>{item.name}</AppText>
             </View>
           ))}
@@ -76,9 +77,16 @@ export function TodaySuggestion({
               disabled={loading}
             />
           </View>
-          <View style={styles.actionNext}>
-            <Button label="اقتراح ثاني" variant="secondary" onPress={onNext} disabled={loading} />
-          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="اقتراح ثاني"
+            disabled={loading}
+            onPress={onNext}
+            style={[styles.next, loading && styles.nextDisabled]}
+          >
+            <Feather name="refresh-cw" size={18} color={colors.text} />
+            <AppText style={styles.nextLabel}>اقتراح ثاني</AppText>
+          </Pressable>
         </View>
 
         {stepsOpen
@@ -90,7 +98,7 @@ export function TodaySuggestion({
           : null}
 
         {link.missing.length > 0 ? (
-          <Pressable accessibilityRole="button" onPress={onAddMissing} hitSlop={6}>
+          <Pressable accessibilityRole="button" onPress={onAddMissing} hitSlop={6} style={styles.linkHit}>
             <AppText style={styles.link}>أضيفي النواقص للمشتريات</AppText>
           </Pressable>
         ) : null}
@@ -109,65 +117,67 @@ const styles = StyleSheet.create({
     ...rtl,
   },
   body: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 16,
-    gap: 8,
+    padding: 18,
+    gap: 0,
     ...rtl,
   },
   name: {
     fontFamily: fonts.heading,
-    fontSize: 26,
-    lineHeight: 36,
+    fontSize: 22,
+    lineHeight: 32,
   },
   meta: {
-    fontFamily: fonts.medium,
+    marginTop: 6,
+    fontFamily: fonts.regular,
     fontSize: 13,
     lineHeight: 20,
     color: colors.muted,
   },
   note: {
+    marginTop: 6,
     fontSize: 13,
     lineHeight: 20,
     color: colors.muted,
   },
   progressRow: {
+    marginTop: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 4,
     gap: 8,
     ...rtl,
   },
   progress: {
     fontFamily: fonts.semibold,
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 20,
     flex: 1,
   },
   missing: {
     fontFamily: fonts.semibold,
-    fontSize: 14,
-    lineHeight: 22,
-    color: colors.saffronInk,
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#8A5A12',
   },
   track: {
-    height: 6,
-    borderRadius: 99,
-    backgroundColor: colors.softAlt,
+    marginTop: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F1E3C8',
     overflow: 'hidden',
     flexDirection: 'row',
     ...rtl,
   },
   fill: {
-    height: '100%',
+    height: 8,
+    borderRadius: 4,
     backgroundColor: colors.primary,
   },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 4,
+    gap: 6,
+    marginTop: 14,
     ...rtl,
   },
   chip: {
@@ -180,19 +190,19 @@ const styles = StyleSheet.create({
     ...rtl,
   },
   chipHave: {
-    backgroundColor: colors.soft,
+    backgroundColor: '#E6EDE2',
   },
   chipMiss: {
-    backgroundColor: colors.saffronSoft,
+    backgroundColor: '#FBE7C2',
   },
   chipHaveText: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: 13,
     lineHeight: 18,
     color: colors.primaryDark,
   },
   chipMissText: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.semibold,
     fontSize: 13,
     lineHeight: 18,
     color: colors.saffronInk,
@@ -200,14 +210,39 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: 8,
-    marginTop: 6,
+    marginTop: 18,
+    alignItems: 'stretch',
     ...rtl,
   },
   actionMain: {
-    flex: 1.35,
-  },
-  actionNext: {
     flex: 1,
+  },
+  next: {
+    height: 52,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#CBD5C5',
+    backgroundColor: colors.white,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    ...rtl,
+  },
+  nextDisabled: {
+    opacity: 0.45,
+  },
+  nextLabel: {
+    fontFamily: fonts.medium,
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.text,
+  },
+  linkHit: {
+    minHeight: 44,
+    marginTop: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   link: {
     fontFamily: fonts.semibold,
@@ -215,9 +250,9 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: colors.primary,
     textAlign: 'center',
-    marginTop: 2,
   },
   step: {
+    marginTop: 8,
     fontSize: 14,
     lineHeight: 22,
   },

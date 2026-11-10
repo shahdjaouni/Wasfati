@@ -7,30 +7,51 @@ import { TodaySuggestion } from '../../src/components/TodaySuggestion';
 import { WeekStrip } from '../../src/components/WeekStrip';
 import { AppText, Button, EmptyNote, Notice, Screen } from '../../src/components/ui';
 import { linkRecipeToPantry } from '../../src/core/match';
-import { formatArabicDate, isFullyOnHand, recipesOnHand } from '../../src/home/today';
+import {
+  findUseSoon,
+  formatArabicDate,
+  recipeMatchesFilter,
+  recipesForFilter,
+  useSoonMessage,
+  type HomeFilter,
+} from '../../src/home/today';
 import { useApp } from '../../src/state/AppProvider';
 import type { DishSuggestion, Ingredient } from '../../src/types';
 import { colors, fonts, rtl } from '../../src/theme';
 
+const FILTERS: { id: HomeFilter; label: string }[] = [
+  { id: 'quick', label: 'سريعة، أقل من 30 د' },
+  { id: 'onHand', label: 'بس من الموجود' },
+  { id: 'vegetarian', label: 'نباتية' },
+  { id: 'sweet', label: 'حلو' },
+];
+
+const EMPTY_FILTER: Record<HomeFilter, string> = {
+  quick: 'ما في وصفة محفوظة بأقل من 30 دقيقة الآن.',
+  onHand: 'ما في وصفة محفوظة كل مكوناتها موجودة بالثلاجة الآن.',
+  vegetarian: 'ما في وصفة نباتية محفوظة الآن.',
+  sweet: 'ما في حلو محفوظ الآن.',
+};
+
 export default function TodayScreen() {
   const router = useRouter();
-  const { ready, recipes, pantry, settings, apiKey, addShopping } = useApp();
+  const { ready, recipes, pantry, settings, apiKey, cookLog, addShopping, markCooked } = useApp();
   const [picked, setPicked] = useState<DishSuggestion | null>(null);
   const [excludeIds, setExcludeIds] = useState<string[]>([]);
-  const [onlyOnHand, setOnlyOnHand] = useState(false);
+  const [filter, setFilter] = useState<HomeFilter | null>(null);
   const [filteredEmpty, setFilteredEmpty] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const started = useRef(false);
   const today = useMemo(() => new Date(), []);
-  const snapshot = useRef({ recipes, pantry, settings, apiKey, onlyOnHand });
-  snapshot.current = { recipes, pantry, settings, apiKey, onlyOnHand };
+  const snapshot = useRef({ recipes, pantry, settings, apiKey, filter });
+  snapshot.current = { recipes, pantry, settings, apiKey, filter };
 
-  async function request(exclude: string[], onHand: boolean) {
+  async function request(exclude: string[], active: HomeFilter | null) {
     const current = snapshot.current;
-    const pool = onHand ? recipesOnHand(current.recipes, current.pantry) : current.recipes;
+    const pool = recipesForFilter(current.recipes, current.pantry, active);
     setLoading(true);
-    if (onHand && pool.length === 0) {
+    if (active && pool.length === 0) {
       setPicked(null);
       setFilteredEmpty(true);
       setExcludeIds(exclude);
@@ -47,9 +68,9 @@ export default function TodayScreen() {
       model: current.settings.aiModel,
     });
     const usable =
-      suggestion && (!onHand || isFullyOnHand(suggestion.recipe, current.pantry)) ? suggestion : null;
+      suggestion && (!active || recipeMatchesFilter(suggestion.recipe, current.pantry, active)) ? suggestion : null;
     setPicked(usable);
-    setFilteredEmpty(onHand && !usable);
+    setFilteredEmpty(Boolean(active) && !usable);
     setExcludeIds(usable?.wrapped ? [] : exclude);
     setLoading(false);
   }
@@ -57,7 +78,7 @@ export default function TodayScreen() {
   useEffect(() => {
     if (!ready || started.current) return;
     started.current = true;
-    void request([], false);
+    void request([], null);
   }, [ready]);
 
   const recipe = useMemo(() => {
@@ -67,16 +88,17 @@ export default function TodayScreen() {
 
   const link = useMemo(() => (recipe ? linkRecipeToPantry(recipe, pantry) : null), [recipe, pantry]);
   const saved = Boolean(recipe && recipes.some((item) => item.id === recipe.id));
+  const soon = useMemo(() => findUseSoon(pantry, recipes, today), [pantry, recipes, today]);
 
   async function addItems(items: Ingredient[]) {
     const added = await addShopping(items);
     setNotice(added > 0 ? `أُضيف ${added} إلى المشتريات` : 'موجود في المشتريات');
   }
 
-  function toggleOnHand() {
-    const next = !onlyOnHand;
-    setOnlyOnHand(next);
-    void request([], next);
+  function toggleFilter(next: HomeFilter) {
+    const active = filter === next ? null : next;
+    setFilter(active);
+    void request([], active);
   }
 
   return (
@@ -93,11 +115,16 @@ export default function TodayScreen() {
           hitSlop={10}
           style={styles.settings}
         >
-          <Feather name="sliders" size={18} color={colors.text} />
+          <Feather name="sliders" size={22} color={colors.text} />
         </Pressable>
       </View>
 
-      <WeekStrip today={today} />
+      <WeekStrip
+        today={today}
+        cookedKeys={cookLog.map((entry) => entry.date)}
+        goal={settings.weeklyGoal}
+        onPress={() => router.push('/plan')}
+      />
 
       {notice ? <Notice>{notice}</Notice> : null}
 
@@ -114,11 +141,13 @@ export default function TodayScreen() {
           loading={loading}
           saved={saved}
           onCook={() => {
-            if (recipe) router.push(`/recipe/${recipe.id}`);
+            if (!recipe) return;
+            void markCooked(recipe.id, recipe.name);
+            router.push(`/recipe/${recipe.id}`);
           }}
           onNext={() => {
             if (!picked) return;
-            void request([...excludeIds, picked.recipe.id], onlyOnHand);
+            void request([...excludeIds, picked.recipe.id], filter);
           }}
           onAddMissing={() => void addItems(link.missing)}
           onAddOne={(name) => {
@@ -128,9 +157,9 @@ export default function TodayScreen() {
         />
       ) : null}
 
-      {filteredEmpty ? (
+      {filteredEmpty && filter ? (
         <View style={styles.emptyCard}>
-          <EmptyNote>ما في وصفة محفوظة كل مكوناتها موجودة بالثلاجة الآن.</EmptyNote>
+          <EmptyNote>{EMPTY_FILTER[filter]}</EmptyNote>
         </View>
       ) : null}
 
@@ -143,19 +172,40 @@ export default function TodayScreen() {
       ) : null}
 
       <View style={styles.filters}>
-        <AppText style={styles.filterTitle}>بدّك في معيّن؟</AppText>
+        <AppText style={styles.filterTitle}>بدّك شي معيّن؟</AppText>
+        <View style={styles.filterRow}>
+          {FILTERS.map((item) => {
+            const selected = filter === item.id;
+            return (
+              <Pressable
+                key={item.id}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                onPress={() => toggleFilter(item.id)}
+                style={[styles.filterChip, selected && styles.filterChipOn]}
+              >
+                <AppText style={[styles.filterText, selected && styles.filterTextOn]}>{item.label}</AppText>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
+      {soon ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{ selected: onlyOnHand }}
-          onPress={toggleOnHand}
-          style={[styles.filterChip, onlyOnHand && styles.filterChipOn]}
+          onPress={() => router.push(soon.recipe ? `/recipe/${soon.recipe.id}` : '/fridge')}
+          style={styles.banner}
         >
-          <AppText style={[styles.filterText, onlyOnHand && styles.filterTextOn]}>بس من الموجود</AppText>
+          <View style={styles.bannerIcon}>
+            <Feather name="clock" size={20} color="#3D2A08" />
+          </View>
+          <AppText style={styles.bannerText}>
+            <AppText style={styles.bannerLead}>استعمليه قريباً: </AppText>
+            {useSoonMessage(soon).replace(/^استعمليه قريباً:\s*/, '')}
+          </AppText>
         </Pressable>
-        <AppText style={styles.filterNote}>
-          الوقت والنوع والنباتي مش محفوظين مع الوصفة، فما منعرضهم كفلاتر.
-        </AppText>
-      </View>
+      ) : null}
     </Screen>
   );
 }
@@ -170,29 +220,28 @@ const styles = StyleSheet.create({
   },
   heading: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   date: {
-    fontFamily: fonts.medium,
-    fontSize: 13,
+    fontFamily: fonts.regular,
+    fontSize: 14,
     lineHeight: 20,
     color: colors.muted,
   },
   question: {
     fontFamily: fonts.heading,
-    fontSize: 30,
-    lineHeight: 42,
+    fontSize: 28,
+    lineHeight: 38,
   },
   settings: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
   },
   loading: {
     paddingVertical: 28,
@@ -207,39 +256,73 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   filters: {
+    marginTop: 6,
     gap: 10,
     ...rtl,
   },
   filterTitle: {
-    fontFamily: fonts.heading,
-    fontSize: 16,
-    lineHeight: 24,
+    fontFamily: fonts.semibold,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    ...rtl,
   },
   filterChip: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
+    height: 40,
+    justifyContent: 'center',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: '#CBD5C5',
+    backgroundColor: colors.white,
     paddingHorizontal: 14,
-    paddingVertical: 8,
   },
   filterChipOn: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
   filterText: {
-    fontFamily: fonts.semibold,
+    fontFamily: fonts.regular,
     fontSize: 14,
     lineHeight: 20,
     textAlign: 'center',
   },
   filterTextOn: {
     color: colors.white,
+    fontFamily: fonts.semibold,
   },
-  filterNote: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: colors.muted,
+  banner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    backgroundColor: '#FBEFD9',
+    ...rtl,
+  },
+  bannerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3D49A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bannerText: {
+    flex: 1,
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#3D2A08',
+  },
+  bannerLead: {
+    fontFamily: fonts.semibold,
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#3D2A08',
   },
 });

@@ -8,12 +8,28 @@ export interface Ingredient {
   amount?: string;
 }
 
+export const DISH_KINDS = ['main', 'soup', 'salad', 'sweet'] as const;
+
+export type DishKind = (typeof DISH_KINDS)[number];
+
+export const DISH_KIND_LABELS: Record<DishKind, string> = {
+  main: 'طبخة رئيسية',
+  soup: 'شوربة',
+  salad: 'سلطة',
+  sweet: 'حلو',
+};
+
 export interface Recipe {
   id: string;
   name: string;
   ingredients: Ingredient[];
   steps: string[];
   photoUri?: string | null;
+  /** Optional. Absent on older saved recipes until someone fills the form. */
+  minutes?: number;
+  servings?: number;
+  kind?: DishKind;
+  vegetarian?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,6 +39,15 @@ export interface PantryItem {
   name: string;
   category: IngredientCategory;
   amount?: string;
+  /** ISO time the item was added. Missing on data saved before this field existed. */
+  addedAt?: string;
+}
+
+/** One cooked day. A second cook on the same date replaces the recipe and stays one check. */
+export interface CookEntry {
+  date: string;
+  recipeId: string;
+  recipeName: string;
 }
 
 export interface ShoppingItem {
@@ -41,6 +66,11 @@ export interface Settings {
   reminderMinute: number;
   aiBaseUrl: string;
   aiModel: string;
+  /**
+   * How many days this week (Saturday–Friday) the cook wants to cook.
+   * The home caption is cooked days ÷ this goal. Default 3.
+   */
+  weeklyGoal: number;
 }
 
 export interface AppData {
@@ -48,6 +78,7 @@ export interface AppData {
   pantry: PantryItem[];
   shopping: ShoppingItem[];
   settings: Settings;
+  cookLog: CookEntry[];
   initialized: true;
 }
 
@@ -86,6 +117,7 @@ export function defaultSettings(): Settings {
     reminderMinute: 0,
     aiBaseUrl: 'https://api.openai.com/v1',
     aiModel: 'gpt-4o-mini',
+    weeklyGoal: 3,
   };
 }
 

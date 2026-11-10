@@ -1,45 +1,46 @@
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
-import { cookedOn, weekStartingSaturday, weekStatusLabel, type WeekDay } from '../home/today';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { cookedOn, weekCaption, weekStartingSaturday, type WeekDay } from '../home/today';
 import { colors, fonts, rtl } from '../theme';
 import { AppText } from './ui';
 
-export function WeekStrip({ today, cookedKeys = [] }: { today: Date; cookedKeys?: readonly string[] }) {
+export function WeekStrip({
+  today,
+  cookedKeys = [],
+  goal,
+  onPress,
+}: {
+  today: Date;
+  cookedKeys?: readonly string[];
+  goal: number;
+  onPress?: () => void;
+}) {
   const days = weekStartingSaturday(today);
   const cooked = cookedOn(days, cookedKeys);
-  const cookedCount = cookedKeys.length === 0 ? null : cooked.filter(Boolean).length;
+  const cookedCount = cooked.filter(Boolean).length;
 
   return (
-    <View style={styles.card}>
+    <Pressable accessibilityRole="button" accessibilityLabel="خطة هالأسبوع" onPress={onPress} style={styles.card}>
       <View style={styles.header}>
         <AppText style={styles.title}>خطة هالأسبوع</AppText>
-        <View style={styles.status}>
-          <Feather name="calendar" size={14} color={colors.muted} />
-          <AppText style={styles.statusText}>{weekStatusLabel(cookedCount)}</AppText>
-        </View>
+        <AppText style={styles.statusText}>{weekCaption(cookedCount, goal)}</AppText>
       </View>
       <View style={styles.days}>
         {days.map((day, index) => (
           <DayBubble key={day.key} day={day} cooked={cooked[index] === true} />
         ))}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 function DayBubble({ day, cooked }: { day: WeekDay; cooked: boolean }) {
   return (
     <View style={styles.day}>
-      <View
-        style={[
-          styles.bubble,
-          cooked && styles.bubbleCooked,
-          day.isToday && !cooked && styles.bubbleToday,
-        ]}
-      >
-        {cooked ? <Feather name="check" size={14} color={colors.white} /> : null}
-      </View>
       <AppText style={[styles.label, day.isToday && styles.labelToday]}>{day.label}</AppText>
+      <View style={[styles.bubble, cooked && styles.bubbleCooked, day.isToday && styles.bubbleToday]}>
+        {cooked ? <Feather name="check" size={16} color={colors.white} /> : null}
+      </View>
     </View>
   );
 }
@@ -47,12 +48,10 @@ function DayBubble({ day, cooked }: { day: WeekDay; cooked: boolean }) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingHorizontal: 14,
-    paddingTop: 14,
-    paddingBottom: 12,
+    padding: 16,
     gap: 14,
     ...rtl,
   },
@@ -64,57 +63,51 @@ const styles = StyleSheet.create({
     ...rtl,
   },
   title: {
-    fontFamily: fonts.heading,
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  status: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    ...rtl,
+    fontFamily: fonts.semibold,
+    fontSize: 15,
+    lineHeight: 22,
   },
   statusText: {
-    fontFamily: fonts.medium,
-    fontSize: 12,
-    lineHeight: 18,
-    color: colors.muted,
+    fontFamily: fonts.semibold,
+    fontSize: 13,
+    lineHeight: 20,
+    color: colors.primary,
   },
   days: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 6,
     ...rtl,
   },
   day: {
+    flex: 1,
     alignItems: 'center',
     gap: 6,
-    width: 36,
+  },
+  label: {
+    fontFamily: fonts.medium,
+    fontSize: 11,
+    lineHeight: 16,
+    color: colors.muted,
+    textAlign: 'center',
+  },
+  labelToday: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
   },
   bubble: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.softAlt,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#EEF0E8',
     alignItems: 'center',
     justifyContent: 'center',
   },
   bubbleToday: {
-    backgroundColor: colors.white,
+    backgroundColor: '#FBE7C2',
     borderWidth: 2,
     borderColor: colors.saffron,
   },
   bubbleCooked: {
     backgroundColor: colors.primary,
-  },
-  label: {
-    fontFamily: fonts.medium,
-    fontSize: 10,
-    lineHeight: 14,
-    color: colors.muted,
-    textAlign: 'center',
-  },
-  labelToday: {
-    color: colors.saffronInk,
-    fontFamily: fonts.semibold,
   },
 });

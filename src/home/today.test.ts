@@ -10,8 +10,8 @@ import {
   missingLabel,
   recipesOnHand,
   suggestionBadge,
+  weekCaption,
   weekStartingSaturday,
-  weekStatusLabel,
 } from './today';
 
 const ids = () => {
@@ -30,7 +30,7 @@ describe('today screen copy', () => {
 
   it('lays the week out Saturday to Friday and marks only today', () => {
     const week = weekStartingSaturday(friday);
-    expect(week.map((day) => day.label)).toEqual(['سبت', 'أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'اليوم']);
+    expect(week.map((day) => day.label)).toEqual(['سبت', 'أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'اليوم']);
     expect(week[0]?.key).toBe('2026-10-31');
     expect(week[6]?.key).toBe('2026-11-06');
     expect(week.filter((day) => day.isToday).map((day) => day.key)).toEqual(['2026-11-06']);
@@ -38,10 +38,9 @@ describe('today screen copy', () => {
     expect(cookedOn(week, ['2026-11-04'])[4]).toBe(true);
   });
 
-  it('does not invent a cooked-count fraction when there is no record', () => {
-    expect(weekStatusLabel(null)).toBe('لسه بدون سجل');
-    expect(weekStatusLabel(2)).toBe('طبختي 2');
-    expect(weekStatusLabel(2)).not.toMatch(/من/);
+  it('states cooked days against the saved weekly goal', () => {
+    expect(weekCaption(0, 3)).toBe('طبختي 0 من 3 ›');
+    expect(weekCaption(2, 3)).toBe('طبختي 2 من 3 ›');
   });
 
   it('describes pantry coverage without a made-up time or dish type', () => {

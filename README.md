@@ -32,9 +32,9 @@ npm run typecheck
 
 ## نسخة المعاينة (بدون خادم تطوير)
 
-ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (39,932,973 بايت، معالج arm64 فقط، الإصدار 1.1.1، versionCode 3).
+ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (32,927,847 بايت، معالج arm64 فقط، الإصدار 1.1.2، versionCode 4).
 
-هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. صفحة اليوم والشريط السفلي على الهوية الخضراء الجديدة. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. إذا كان إصدار 1.0.0 مثبتاً، التثبيت يحدّثه ويُبقي الوصفات والثلاجة. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
+هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. صفحة اليوم تعرض طبق الاقتراح، وهدف الطبخ الأسبوعي (افتراضياً 3 أيام من السبت للجمعة)، وتفاصيل الوصفة إن وُجدت، وفلاتر تعمل، وتنبيهاً لمكوّن قديم في الثلاجة إن كان تاريخ إضافته محفوظاً. الشريط السفلي كما هو. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. التثبيت فوق 1.1.1 (أو 1.0.0) يحدّث التطبيق ويُبقي الوصفات والثلاجة. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
 
 تُوقَّع بمفتاح تصحيح أندرويد نفسه حتى يقدر التحديث يمر، وليست نسخة متجر. الحزمة `com.tabkha.app`.
 
@@ -69,9 +69,9 @@ npx expo start --dev-client --tunnel
 
 ## Standalone preview APK
 
-The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (39,932,973 bytes, arm64-v8a only, version 1.1.1, versionCode 3). JavaScript and the Arabic fonts are bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL. This build keeps the green home screen and fixes native RTL text so Arabic, counts, and the five tabs read from the right.
+The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (32,927,847 bytes, arm64-v8a only, version 1.1.2, versionCode 4). JavaScript and the Arabic fonts are bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL. Home now records a cooking day when you tap يلا نطبخها, shows a recipe's minutes, servings, and kind only when those fields exist, filters suggestions from those fields, and shows استعمليه قريباً only for a pantry item with a real added date. The weekly target (default 3 days, Saturday through Friday) is editable in settings. RTL from 1.1.1 is unchanged.
 
-Copy it to a 64-bit Android phone and open it. Installing over the 1.0.0 preview keeps local recipes and pantry data. Allow installation from that source if Android asks. It is signed with the same Android debug key so the update can replace the previous preview; it is not a Play Store build. Package name: `com.tabkha.app`.
+Copy it to a 64-bit Android phone and open it. Installing over the 1.1.1 preview keeps local recipes and pantry data. Allow installation from that source if Android asks. It is signed with the same Android debug key so the update can replace the previous preview; it is not a Play Store build. Package name: `com.tabkha.app`.
 
 Built locally with `./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a` after `npx expo prebuild --platform android` (the same shape as the `preview` profile in `eas.json`: an internal APK, not a dev client).
 

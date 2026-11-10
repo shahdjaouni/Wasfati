@@ -1,9 +1,11 @@
-import type { AppData, Ingredient, PantryItem, Recipe, Settings } from '../types';
-import { createId, defaultSettings } from '../types';
+import type { AppData, DishKind, Ingredient, PantryItem, Recipe, Settings } from '../types';
+import { createId } from '../types';
 import { createSeedData } from '../core/seed';
 import { mergeIntoShopping } from '../core/shopping';
 import { cleanText, coerceCategory } from '../core/text';
-import { clampClock } from '../core/reminder';
+import { dayKey } from '../home/today';
+import { migrateApp, optionalCount } from './migrate';
+import { sanitizeSettings } from './settings';
 
 export interface KeyValueStore {
   getItem(key: string): Promise<string | null>;
@@ -29,11 +31,15 @@ export class MemoryStorage implements KeyValueStore {
   }
 }
 
-type RecipeInput = {
+export type RecipeInput = {
   name: string;
   ingredients: Ingredient[];
   steps: string[];
   photoUri?: string | null;
+  minutes?: number | null;
+  servings?: number | null;
+  kind?: DishKind | null;
+  vegetarian?: boolean;
 };
 
 export class Repository {
@@ -83,6 +89,7 @@ export class Repository {
           name,
           category: coerceCategory(input.category),
           amount: input.amount ? cleanText(input.amount) : undefined,
+          addedAt: this.now(),
         },
       ],
     }));
@@ -130,6 +137,17 @@ export class Repository {
     return this.update((data) => ({ ...data, settings: sanitizeSettings(settings) }));
   }
 
+  /** Records today as cooked. Cooking again the same day keeps a single check. */
+  async markCooked(recipeId: string, recipeName: string): Promise<AppData> {
+    const name = cleanText(recipeName);
+    if (!recipeId || !name) return this.load();
+    const date = dayKey(new Date(this.now()));
+    return this.update((data) => {
+      const rest = data.cookLog.filter((entry) => entry.date !== date);
+      return { ...data, cookLog: [...rest, { date, recipeId, recipeName: name }] };
+    });
+  }
+
   async resetSamples(): Promise<AppData> {
     return this.update((data) => {
       const seed = createSeedData(this.ids, this.now);
@@ -147,6 +165,7 @@ export class Repository {
       recipes: [],
       pantry: [],
       shopping: [],
+      cookLog: [],
     }));
   }
 
@@ -166,6 +185,10 @@ export class Repository {
       ingredients,
       steps,
       photoUri: input.photoUri ?? null,
+      minutes: optionalCount(input.minutes),
+      servings: optionalCount(input.servings),
+      kind: input.kind ?? undefined,
+      vegetarian: input.vegetarian === true ? true : input.vegetarian === false ? false : undefined,
       createdAt: previous?.createdAt ?? stamp,
       updatedAt: stamp,
     };
@@ -177,13 +200,7 @@ export class Repository {
     try {
       const parsed = JSON.parse(raw) as Partial<AppData>;
       if (!parsed || parsed.initialized !== true) return null;
-      return {
-        recipes: Array.isArray(parsed.recipes) ? parsed.recipes : [],
-        pantry: Array.isArray(parsed.pantry) ? parsed.pantry : [],
-        shopping: Array.isArray(parsed.shopping) ? parsed.shopping : [],
-        settings: sanitizeSettings(parsed.settings ?? defaultSettings()),
-        initialized: true,
-      };
+      return migrateApp(parsed);
     } catch {
       return null;
     }
@@ -204,20 +221,4 @@ export class Repository {
   }
 }
 
-export function sanitizeSettings(settings: Settings): Settings {
-  const clock = clampClock(Number(settings.reminderHour), Number(settings.reminderMinute));
-  const base = typeof settings.aiBaseUrl === 'string' && settings.aiBaseUrl.trim()
-    ? settings.aiBaseUrl.trim()
-    : defaultSettings().aiBaseUrl;
-  const model = typeof settings.aiModel === 'string' && settings.aiModel.trim()
-    ? settings.aiModel.trim()
-    : defaultSettings().aiModel;
-  return {
-    whatsappNumber: typeof settings.whatsappNumber === 'string' ? settings.whatsappNumber.trim() : '',
-    reminderEnabled: Boolean(settings.reminderEnabled),
-    reminderHour: clock.hour,
-    reminderMinute: clock.minute,
-    aiBaseUrl: base,
-    aiModel: model,
-  };
-}
+export { sanitizeSettings } from './settings';

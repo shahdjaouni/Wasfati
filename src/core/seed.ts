@@ -1,6 +1,7 @@
 import {
   defaultSettings,
   type AppData,
+  type DishKind,
   type PantryItem,
   type Recipe,
 } from '../types';
@@ -11,12 +12,14 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
     name: string,
     ingredients: Recipe['ingredients'],
     steps: string[],
+    details: { minutes?: number; servings?: number; kind?: DishKind; vegetarian?: boolean } = {},
   ): Recipe => ({
     id: ids(),
     name,
     ingredients,
     steps,
     photoUri: null,
+    ...details,
     createdAt: stamp,
     updatedAt: stamp,
   });
@@ -40,6 +43,7 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
         'يُغطى القدر على نار هادئة حتى ينضج الأرز.',
         'تُقلب في طبق وتُقدّم.',
       ],
+      { minutes: 60, servings: 4, kind: 'main', vegetarian: true },
     ),
     recipe(
       'مجدرة',
@@ -57,6 +61,7 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
         'يُكرمل البصل بالزيت ويُوزع على الوجه.',
         'تُضاف البهارات وتُترك المجدرة حتى تهدأ.',
       ],
+      { minutes: 50, servings: 4, kind: 'main', vegetarian: true },
     ),
     recipe(
       'شوربة عدس',
@@ -74,6 +79,7 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
         'يُضاف العدس والماء والكمون حتى ينضج.',
         'تُهرس الشوربة وتُقدم مع الليمون.',
       ],
+      { minutes: 25, servings: 4, kind: 'soup', vegetarian: true },
     ),
     recipe(
       'شكشوكة',
@@ -90,6 +96,7 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
         'تُطهى البندورة مع البصل والفلفل.',
         'تُكسر البيضات في الصلصة وتُغطى حتى تنضج.',
       ],
+      { minutes: 20, servings: 2, kind: 'main', vegetarian: false },
     ),
     recipe(
       'أرز بالحليب',
@@ -103,6 +110,7 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
         'يُسلق الأرز قليلاً ثم يُضاف الحليب والسكر.',
         'يُترك على نار هادئة حتى يثقل، ويُرش بالقرفة.',
       ],
+      { minutes: 40, servings: 6, kind: 'sweet', vegetarian: true },
     ),
   ];
 
@@ -120,12 +128,13 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
     { name: 'حليب', category: 'liquids', amount: 'لتر' },
   ];
 
-  const pantry: PantryItem[] = pantryNames.map((item) => ({ ...item, id: ids() }));
+  const pantry: PantryItem[] = pantryNames.map((item) => ({ ...item, id: ids(), addedAt: stamp }));
 
   return {
     recipes,
     pantry,
     shopping: [],
+    cookLog: [],
     settings: defaultSettings(),
     initialized: true,
   };

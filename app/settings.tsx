@@ -17,6 +17,7 @@ export default function SettingsScreen() {
   const [reminderEnabled, setReminderEnabled] = useState(settings.reminderEnabled);
   const [hour, setHour] = useState(String(settings.reminderHour));
   const [minute, setMinute] = useState(String(settings.reminderMinute));
+  const [goal, setGoal] = useState(String(settings.weeklyGoal));
   const [notice, setNotice] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<'reset' | 'clear' | null>(null);
 
@@ -29,6 +30,7 @@ export default function SettingsScreen() {
     setReminderEnabled(settings.reminderEnabled);
     setHour(String(settings.reminderHour));
     setMinute(String(settings.reminderMinute));
+    setGoal(String(settings.weeklyGoal));
   }, [ready, apiKey, settings]);
 
   async function save() {
@@ -50,6 +52,11 @@ export default function SettingsScreen() {
       setNotice('الدقائق من 0 إلى 59');
       return;
     }
+    const weeklyGoal = Number(goal);
+    if (!Number.isInteger(weeklyGoal) || weeklyGoal < 1 || weeklyGoal > 7) {
+      setNotice('هدف الأسبوع من 1 إلى 7 أيام');
+      return;
+    }
 
     const next = {
       ...settings,
@@ -59,6 +66,7 @@ export default function SettingsScreen() {
       reminderEnabled,
       reminderHour,
       reminderMinute,
+      weeklyGoal,
     };
     await saveSettings(next, key);
     const reminder = await syncShoppingReminder(next);
@@ -125,6 +133,14 @@ export default function SettingsScreen() {
           </View>
         </View>
         <AppText style={styles.help}>تنبيه محلي لمراجعة القائمة وإرسالها.</AppText>
+      </View>
+
+      <View style={styles.card}>
+        <AppText style={styles.section}>هدف الطبخ</AppText>
+        <Field label="أيام بالأسبوع" value={goal} onChangeText={setGoal} keyboardType="number-pad" />
+        <AppText style={styles.help}>
+          كم يوم بدك تطبخي من السبت للجمعة. الافتراضي 3، وهذا رقم «من» في خطة هالأسبوع. الضغط على يلا نطبخها أو طبختها اليوم بيسجّل ذلك اليوم.
+        </AppText>
       </View>
 
       {notice ? <Notice>{notice}</Notice> : null}

@@ -2,8 +2,6 @@ const { withMainApplication } = require('@expo/config-plugins');
 
 const IMPORT = 'import com.facebook.react.modules.i18nmanager.I18nUtil';
 const MARKER = 'I18nUtil.instance.forceRTL(this, true)';
-const HOOK = `    I18nUtil.instance.allowRTL(this, true)
-    ${MARKER}`;
 
 /**
  * Writes the RTL preference before React Native reads it.
@@ -24,7 +22,9 @@ function ensureAndroidRtl(contents) {
       : next.replace(/^(package .+\r?\n)/, `$1\n${IMPORT}\n`);
   }
 
-  return next.replace('loadReactNative(this)', `${HOOK}\n    loadReactNative(this)`);
+  return next.replace(/([ \t]*)loadReactNative\(this\)/, (_match, indent) => {
+    return `${indent}I18nUtil.instance.allowRTL(this, true)\n${indent}${MARKER}\n${indent}loadReactNative(this)`;
+  });
 }
 
 function withAndroidRtl(config) {
