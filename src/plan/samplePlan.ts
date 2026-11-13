@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { defaultGuestPlan } from '../guests/guests';
 import { defaultSettings, type AppData, type Recipe } from '../types';
 import { weekStartingSaturday } from '../home/today';
 
@@ -46,6 +47,7 @@ export function createPlanSample(today: Date): AppData {
       planDouble: false,
     },
     shopping: [],
+    guestPlan: defaultGuestPlan(today),
     cookLog: [{ date: sunday, recipeId: 'plan-muj', recipeName: 'مجدّرة' }],
     plan: [
       { date: sunday, recipeId: 'plan-muj' },

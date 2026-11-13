@@ -213,11 +213,7 @@ export default function PlanScreen() {
           </View>
         ) : null}
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => setNotice('عزومة المنيو الكامل قريباً. هالنسخة بتخطط أسبوعك فقط.')}
-          style={styles.guests}
-        >
+        <Pressable accessibilityRole="button" onPress={() => router.push('/guests')} style={styles.guests}>
           <View style={styles.guestIcon}>
             <Feather name="users" size={20} color="#3D2A08" />
           </View>
@@ -225,7 +221,7 @@ export default function PlanScreen() {
             <AppText style={styles.guestLead}>عندك عزومة؟ </AppText>
             خططيلها منيو كامل
           </AppText>
-          <AppText style={styles.soon}>قريباً</AppText>
+          <AppText style={styles.soon}>›</AppText>
         </Pressable>
       </View>
 
@@ -275,7 +271,9 @@ export default function PlanScreen() {
 
 const styles = StyleSheet.create({
   header: {
+    marginTop: 16,
     gap: 4,
+    paddingBottom: 4,
   },
   range: {
     fontFamily: fonts.regular,

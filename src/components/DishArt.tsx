@@ -6,10 +6,14 @@ import { AppText } from './ui';
 
 const LtrView = View as ComponentType<ViewProps & { dir?: 'ltr' }>;
 
-/** Plate coordinates stay physical. Native RTL would otherwise rewrite `left`. */
-const physical: ViewStyle = Platform.OS === 'web' ? {} : { direction: 'ltr' };
+/**
+ * The plate is drawn in physical pixels. RTL swaps `left` into `right` before
+ * layout, so the lane is an explicit LTR row and the plate uses `marginStart`
+ * (24px from the visual left). Florets use `start`, which stays the left edge
+ * inside that lane.
+ */
+const ltrLane: ViewStyle = Platform.OS === 'web' ? {} : { direction: 'ltr' };
 
-/** Green header plate from the home mockup: ring, cream disc, and florets. */
 export function DishArt({ badge }: { badge: string }) {
   return (
     <View style={styles.art}>
@@ -17,15 +21,17 @@ export function DishArt({ badge }: { badge: string }) {
         <Feather name="star" size={14} color={colors.saffronInk} />
         <AppText style={styles.badgeText}>{badge}</AppText>
       </View>
-      <LtrView dir={Platform.OS === 'web' ? 'ltr' : undefined} style={styles.plateBox} pointerEvents="none">
-        <View style={styles.ring} />
-        <View style={styles.disc} />
-        <View style={[styles.dot, styles.dotA]} />
-        <View style={[styles.dot, styles.dotB]} />
-        <View style={[styles.dot, styles.dotC]} />
-        <View style={[styles.dot, styles.dotD]} />
-        <View style={[styles.dot, styles.dotE]} />
-        <View style={[styles.dot, styles.dotF]} />
+      <LtrView dir="ltr" style={styles.lane} pointerEvents="none">
+        <View style={styles.plate}>
+          <View style={styles.ring} />
+          <View style={styles.disc} />
+          <View style={[styles.dot, styles.dotA]} />
+          <View style={[styles.dot, styles.dotB]} />
+          <View style={[styles.dot, styles.dotC]} />
+          <View style={[styles.dot, styles.dotD]} />
+          <View style={[styles.dot, styles.dotE]} />
+          <View style={[styles.dot, styles.dotF]} />
+        </View>
       </LtrView>
     </View>
   );
@@ -40,7 +46,8 @@ const styles = StyleSheet.create({
   badge: {
     position: 'absolute',
     top: 14,
-    start: 14,
+    // Web compiles `start` to a physical left. Android keeps it as the RTL start edge (the visual right).
+    ...(Platform.OS === 'web' ? { right: 14 } : { start: 14 }),
     zIndex: 2,
     flexDirection: 'row',
     alignItems: 'center',
@@ -57,18 +64,24 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: colors.saffronInk,
   },
-  plateBox: {
+  lane: {
     position: 'absolute',
-    left: 24,
+    left: 0,
+    right: 0,
     bottom: -30,
+    height: 190,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    ...ltrLane,
+  },
+  plate: {
     width: 190,
     height: 190,
-    zIndex: 1,
-    ...physical,
+    marginStart: 24,
   },
   ring: {
     position: 'absolute',
-    left: 7,
+    start: 7,
     top: 7,
     width: 176,
     height: 176,
@@ -77,7 +90,7 @@ const styles = StyleSheet.create({
   },
   disc: {
     position: 'absolute',
-    left: 29,
+    start: 29,
     top: 29,
     width: 132,
     height: 132,
@@ -88,10 +101,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 999,
   },
-  dotA: { left: 64, top: 68, width: 28, height: 28, backgroundColor: '#D9A55B' },
-  dotB: { left: 99, top: 67, width: 22, height: 22, backgroundColor: '#F2EEE2' },
-  dotC: { left: 91, top: 95, width: 26, height: 26, backgroundColor: '#D9A55B' },
-  dotD: { left: 65, top: 103, width: 18, height: 18, backgroundColor: '#F2EEE2' },
-  dotE: { left: 92, top: 90, width: 8, height: 8, backgroundColor: '#8C5A2B' },
-  dotF: { left: 118, top: 94, width: 8, height: 8, backgroundColor: '#8C5A2B' },
+  dotA: { start: 64, top: 68, width: 28, height: 28, backgroundColor: '#D9A55B' },
+  dotB: { start: 99, top: 67, width: 22, height: 22, backgroundColor: '#F2EEE2' },
+  dotC: { start: 91, top: 95, width: 26, height: 26, backgroundColor: '#D9A55B' },
+  dotD: { start: 65, top: 103, width: 18, height: 18, backgroundColor: '#F2EEE2' },
+  dotE: { start: 92, top: 90, width: 8, height: 8, backgroundColor: '#8C5A2B' },
+  dotF: { start: 118, top: 94, width: 8, height: 8, backgroundColor: '#8C5A2B' },
 });

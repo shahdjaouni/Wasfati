@@ -60,12 +60,14 @@ export function Button({
   disabled,
   variant = 'primary',
   icon,
+  height,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'quiet';
   icon?: ReactNode;
+  height?: number;
 }) {
   return (
     <Pressable
@@ -76,6 +78,7 @@ export function Button({
         styles.button,
         variant === 'secondary' && styles.buttonSecondary,
         variant === 'quiet' && styles.buttonQuiet,
+        height != null && { minHeight: height, height },
         disabled && styles.buttonDisabled,
         pressed && !disabled && styles.pressed,
       ]}

@@ -75,6 +75,7 @@ export function TodaySuggestion({
               label={saved ? 'يلا نطبخها' : stepsOpen ? 'إخفاء الخطوات' : 'الخطوات'}
               onPress={saved ? onCook : () => setStepsOpen((open) => !open)}
               disabled={loading}
+              height={52}
             />
           </View>
           <Pressable

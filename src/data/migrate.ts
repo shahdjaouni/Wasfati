@@ -1,3 +1,4 @@
+import { migrateGuestPlan } from '../guests/guests';
 import {
   DISH_KINDS,
   type AppData,
@@ -86,6 +87,7 @@ export function migrateApp(parsed: Partial<AppData>): AppData {
     settings: sanitizeSettings(parsed.settings ?? defaultSettings()),
     cookLog: migrateCookLog(parsed.cookLog),
     plan: migratePlan(parsed.plan),
+    guestPlan: migrateGuestPlan(parsed.guestPlan, new Date()),
     initialized: true,
   };
 }

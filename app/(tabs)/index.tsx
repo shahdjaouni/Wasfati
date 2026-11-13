@@ -118,6 +118,7 @@ export default function TodayScreen() {
 
   return (
     <Screen>
+      <View style={styles.column}>
       <View style={styles.header}>
         <View style={styles.heading}>
           <AppText style={styles.date}>{formatArabicDate(today)}</AppText>
@@ -134,12 +135,14 @@ export default function TodayScreen() {
         </Pressable>
       </View>
 
+      <View style={styles.week}>
       <WeekStrip
         today={today}
         cookedKeys={cookLog.map((entry) => entry.date)}
         goal={settings.weeklyGoal}
         onPress={() => router.push('/plan')}
       />
+      </View>
 
       {notice ? <Notice>{notice}</Notice> : null}
 
@@ -150,6 +153,7 @@ export default function TodayScreen() {
       ) : null}
 
       {link ? (
+        <View style={styles.suggestion}>
         <TodaySuggestion
           link={link}
           note={picked?.note}
@@ -170,6 +174,7 @@ export default function TodayScreen() {
             if (item) void addItems([item]);
           }}
         />
+        </View>
       ) : null}
 
       {filteredEmpty && filter ? (
@@ -221,16 +226,21 @@ export default function TodayScreen() {
           </AppText>
         </Pressable>
       ) : null}
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  column: {
+    marginTop: 16,
+  },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
+    paddingBottom: 8,
     ...rtl,
   },
   heading: {
@@ -270,8 +280,14 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 12,
   },
+  week: {
+    marginTop: 12,
+  },
+  suggestion: {
+    marginTop: 16,
+  },
   filters: {
-    marginTop: 6,
+    marginTop: 22,
     gap: 10,
     ...rtl,
   },
@@ -310,6 +326,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semibold,
   },
   banner: {
+    marginTop: 18,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,

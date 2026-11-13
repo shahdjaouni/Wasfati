@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { defaultGuestPlan } from '../guests/guests';
 import { defaultSettings, type AppData, type Recipe } from '../types';
 import { dayKey, weekStartingSaturday } from './today';
 
@@ -40,6 +41,7 @@ export function createHomeSample(today: Date): AppData {
     settings: defaultSettings(),
     shopping: [],
     plan: [],
+    guestPlan: defaultGuestPlan(today),
     cookLog: cooked.map((day) => ({ date: day.key, recipeId: 'sample-maq', recipeName: 'مقلوبة قرنبيط' })),
     recipes: [
       recipe(

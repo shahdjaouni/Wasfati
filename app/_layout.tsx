@@ -52,6 +52,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="settings" />
             <Stack.Screen name="recipe/[id]" />
+            <Stack.Screen name="guests" />
           </Stack>
         </View>
       </AppProvider>

@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import type { AppData, Ingredient, PantryItem, PlanSlot, Settings } from '../types';
+import type { AppData, GuestPlan, Ingredient, PantryItem, PlanSlot, Settings } from '../types';
+import { defaultGuestPlan } from '../guests/guests';
 import { defaultSettings } from '../types';
 import { deviceStorage } from '../data/asyncStorage';
 import { MemoryStorage, Repository, STORAGE_KEY, type RecipeInput } from '../data/repository';
@@ -15,6 +16,7 @@ interface AppState {
   settings: Settings;
   cookLog: AppData['cookLog'];
   plan: PlanSlot[];
+  guestPlan: GuestPlan;
   apiKey: string | null;
   saveRecipe: (input: RecipeInput, id?: string) => Promise<void>;
   deleteRecipe: (id: string) => Promise<void>;
@@ -28,6 +30,7 @@ interface AppState {
   updateSettings: (settings: Settings) => Promise<void>;
   assignPlan: (date: string, recipeId: string) => Promise<void>;
   setWeekPlan: (dates: string[], slots: PlanSlot[]) => Promise<void>;
+  saveGuestPlan: (plan: GuestPlan) => Promise<void>;
   saveSettings: (settings: Settings, apiKey: string) => Promise<void>;
   resetSamples: () => Promise<void>;
   clearContent: () => Promise<void>;
@@ -77,6 +80,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       settings: data?.settings ?? defaultSettings(),
       cookLog: data?.cookLog ?? [],
       plan: data?.plan ?? [],
+      guestPlan: data?.guestPlan ?? defaultGuestPlan(new Date()),
       apiKey,
       async saveRecipe(input, id) {
         setData(await repoRef.current.saveRecipe(input, id));
@@ -115,6 +119,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       },
       async setWeekPlan(dates, slots) {
         setData(await repoRef.current.setWeekPlan(dates, slots));
+      },
+      async saveGuestPlan(plan) {
+        setData(await repoRef.current.saveGuestPlan(plan));
       },
       async saveSettings(settings, nextKey) {
         setData(await repoRef.current.updateSettings(settings));

@@ -1,3 +1,4 @@
+import { defaultGuestPlan } from '../guests/guests';
 import {
   defaultSettings,
   type AppData,
@@ -136,6 +137,7 @@ export function createSeedData(ids: () => string, now: () => string): AppData {
     shopping: [],
     cookLog: [],
     plan: [],
+    guestPlan: defaultGuestPlan(new Date(stamp)),
     settings: defaultSettings(),
     initialized: true,
   };

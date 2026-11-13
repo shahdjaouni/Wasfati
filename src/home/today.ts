@@ -2,7 +2,7 @@ import { linkRecipeToPantry } from '../core/match';
 import { cleanText } from '../core/text';
 import { DISH_KIND_LABELS, type PantryItem, type Recipe } from '../types';
 
-const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'] as const;
+export const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'] as const;
 
 const MONTHS = [
   'كانون الثاني',

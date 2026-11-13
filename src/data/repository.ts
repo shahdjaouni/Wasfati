@@ -1,4 +1,5 @@
-import type { AppData, DishKind, Ingredient, PantryItem, PlanSlot, Recipe, Settings } from '../types';
+import { migrateGuestPlan } from '../guests/guests';
+import type { AppData, DishKind, GuestPlan, Ingredient, PantryItem, PlanSlot, Recipe, Settings } from '../types';
 import { createId } from '../types';
 import { createSeedData } from '../core/seed';
 import { mergeIntoShopping } from '../core/shopping';
@@ -154,6 +155,13 @@ export class Repository {
     }));
   }
 
+  async saveGuestPlan(plan: GuestPlan): Promise<AppData> {
+    return this.update((data) => ({
+      ...data,
+      guestPlan: migrateGuestPlan(plan, new Date(this.now())),
+    }));
+  }
+
   async markCooked(recipeId: string, recipeName: string): Promise<AppData> {
     const name = cleanText(recipeName);
     if (!recipeId || !name) return this.load();
@@ -183,6 +191,7 @@ export class Repository {
       shopping: [],
       cookLog: [],
       plan: [],
+      guestPlan: migrateGuestPlan(undefined, new Date(this.now())),
     }));
   }
 

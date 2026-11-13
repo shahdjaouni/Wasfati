@@ -86,6 +86,30 @@ export interface PlanSlot {
   recipeId: string;
 }
 
+export const GUEST_OCCASION_IDS = ['family', 'friends', 'birthday', 'iftar'] as const;
+export type GuestOccasion = (typeof GUEST_OCCASION_IDS)[number];
+
+export const GUEST_COURSE_IDS = ['main', 'vegetarian', 'salad', 'sweet'] as const;
+export type GuestCourse = (typeof GUEST_COURSE_IDS)[number];
+
+export interface GuestNote {
+  id: string;
+  kind: 'vegetarians' | 'children' | 'custom';
+  label: string;
+  count?: number;
+}
+
+/** One saved party. Menu ids point at the user's recipes; an empty slot means that course has no saved match. */
+export interface GuestPlan {
+  occasion: GuestOccasion;
+  date: string;
+  readyHour: number;
+  readyMinute: number;
+  guests: number;
+  notes: GuestNote[];
+  menu: Partial<Record<GuestCourse, string>>;
+}
+
 export interface AppData {
   recipes: Recipe[];
   pantry: PantryItem[];
@@ -93,6 +117,7 @@ export interface AppData {
   settings: Settings;
   cookLog: CookEntry[];
   plan: PlanSlot[];
+  guestPlan: GuestPlan;
   initialized: true;
 }
 
