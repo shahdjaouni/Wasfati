@@ -30,6 +30,8 @@ export interface Recipe {
   servings?: number;
   kind?: DishKind;
   vegetarian?: boolean;
+  /** Saved by the cook. Missing means not a favorite, including recipes from older versions. */
+  favorite?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,10 +82,14 @@ export interface Settings {
   planDouble: boolean;
 }
 
-/** A recipe assigned to one calendar day. Other weeks stay stored. */
+/**
+ * A recipe assigned to one calendar day. Other weeks stay stored.
+ * `manual: false` is an automatic suggestion. Missing or true means the cook chose it.
+ */
 export interface PlanSlot {
   date: string;
   recipeId: string;
+  manual?: boolean;
 }
 
 export const GUEST_OCCASION_IDS = ['family', 'friends', 'birthday', 'iftar'] as const;

@@ -41,6 +41,7 @@ export type RecipeInput = {
   servings?: number | null;
   kind?: DishKind | null;
   vegetarian?: boolean;
+  favorite?: boolean;
 };
 
 export class Repository {
@@ -139,10 +140,10 @@ export class Repository {
   }
 
   /** Records today as cooked. Cooking again the same day keeps a single check. */
-  /** Replaces the recipe on one day and keeps assignments from other days. */
-  async assignPlan(date: string, recipeId: string): Promise<AppData> {
+  /** Replaces the recipe on one day and keeps assignments from other days. A cook's pick is manual. */
+  async assignPlan(date: string, recipeId: string, manual = true): Promise<AppData> {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !recipeId) return this.load();
-    return this.setWeekPlan([date], [{ date, recipeId }]);
+    return this.setWeekPlan([date], [{ date, recipeId, manual }]);
   }
 
   /** Writes the given days and leaves every other stored day alone. */
@@ -215,6 +216,7 @@ export class Repository {
       servings: optionalCount(input.servings),
       kind: input.kind ?? undefined,
       vegetarian: input.vegetarian === true ? true : input.vegetarian === false ? false : undefined,
+      favorite: input.favorite === true ? true : undefined,
       createdAt: previous?.createdAt ?? stamp,
       updatedAt: stamp,
     };

@@ -37,6 +37,7 @@ export function migrateRecipe(value: unknown): Recipe | null {
     servings: optionalCount(raw.servings),
     kind: optionalKind(raw.kind),
     vegetarian: raw.vegetarian === true ? true : raw.vegetarian === false ? false : undefined,
+    favorite: raw.favorite === true ? true : undefined,
   };
 }
 
@@ -70,7 +71,7 @@ export function migratePlan(value: unknown): PlanSlot[] {
     const raw = entry as PlanSlot;
     if (typeof raw.date !== 'string' || !DAY_KEY.test(raw.date)) continue;
     if (typeof raw.recipeId !== 'string' || !raw.recipeId) continue;
-    byDate.set(raw.date, { date: raw.date, recipeId: raw.recipeId });
+    byDate.set(raw.date, { date: raw.date, recipeId: raw.recipeId, manual: raw.manual === false ? false : true });
   }
   return [...byDate.values()];
 }

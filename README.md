@@ -32,9 +32,9 @@ npm run typecheck
 
 ## نسخة المعاينة (بدون خادم تطوير)
 
-ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (32,980,703 بايت، معالج arm64 فقط، الإصدار 1.1.4، versionCode 6).
+ملف التثبيت: [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (32,999,819 بايت، معالج arm64 فقط، الإصدار 1.1.5، versionCode 7).
 
-هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. طبق اقتراح اليوم على اليسار. شريط العزومة في الخطة يفتح شاشة عزومة: المناسبة، التاريخ ووقت التقديم، عدد الضيوف، ملاحظات غذائية، قائمة من وصفاتك، وجدول تحضير محسوب من وقت التقديم. «أضيفيها للخطة» تحط الطبخة الرئيسية في ذلك اليوم، و«للمشتريات» تضيف النواقص بعدد الضيوف. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. التثبيت فوق 1.1.3 يحدّث التطبيق ويُبقي الوصفات والثلاجة. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
+هذه نسخة جاهزة. جافاسكربت مضمّن داخل الملف، فالتطبيق يفتح مثل أي تطبيق مثبّت ولا يطلب عنوان Metro أو نفقاً. وصفاتي شبكة من البطاقات مع بحث وفلاتر، وتعديل الوصفة يحفظ الصورة والمكونات والخطوات. الخطة تعبّي الأيام الفاضية من وصفاتك، و«اقترحي غيرها» تغيّر الاقتراح وتترك اليوم اللي اخترتيه. انقل الملف إلى هاتف أندرويد (64-bit) وافتحه. التثبيت فوق 1.1.4 يحدّث التطبيق ويُبقي الوصفات والثلاجة. إذا طلب النظام إذناً، اسمح بالتثبيت من هذا المصدر.
 
 تُوقَّع بمفتاح تصحيح أندرويد نفسه حتى يقدر التحديث يمر، وليست نسخة متجر. الحزمة `com.tabkha.app`.
 
@@ -69,9 +69,9 @@ npx expo start --dev-client --tunnel
 
 ## Standalone preview APK
 
-The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (32,980,703 bytes, arm64-v8a only, version 1.1.4, versionCode 6). JavaScript and the Arabic fonts are bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL. The Home suggestion plate sits on the visual left. The plan banner opens عزومة: occasion, date and ready-by time, guest count, dietary notes, a menu built from saved recipes, and a prep timeline counted back from the ready-by time. أضيفيها للخطة puts the main dish on that date. للمشتريات adds the missing items, scaled to the guest count. RTL from 1.1.1 is unchanged.
+The installable file is [`release/tabkha-preview.apk`](release/tabkha-preview.apk) (32,999,819 bytes, arm64-v8a only, version 1.1.5, versionCode 7). JavaScript and the Arabic fonts are bundled inside the APK, so طبختي opens like a normal installed app. No Metro server and no tunnel URL. وصفاتي is a two-column grid with search and filters, and the recipe editor saves a photo, ingredients, and steps. The plan fills empty days from saved recipes. اقترحي غيرها replaces only the suggested days and leaves a day the cook chose. RTL from 1.1.1 is unchanged.
 
-Copy it to a 64-bit Android phone and open it. Installing over the 1.1.3 preview keeps local recipes and pantry data. Allow installation from that source if Android asks. It is signed with the same Android debug key so the update can replace the previous preview; it is not a Play Store build. Package name: `com.tabkha.app`.
+Copy it to a 64-bit Android phone and open it. Installing over the 1.1.4 preview keeps local recipes and pantry data. Allow installation from that source if Android asks. It is signed with the same Android debug key so the update can replace the previous preview; it is not a Play Store build. Package name: `com.tabkha.app`.
 
 Built locally with `./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a` after `npx expo prebuild --platform android` (the same shape as the `preview` profile in `eas.json`: an internal APK, not a dev client).
 

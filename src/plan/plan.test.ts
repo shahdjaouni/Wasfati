@@ -6,6 +6,7 @@ import {
   applyFrequency,
   fillWeek,
   leftoverNote,
+  resuggestOpenDays,
   missingPlanIngredients,
   plannedRecipeForToday,
   togglePlanDay,
@@ -60,6 +61,35 @@ describe('weekly plan', () => {
     });
     expect(week.map((slot) => slot.recipeId)).toEqual(['fits', 'other', 'small', 'fits']);
     expect(fillWeek({ recipes: [], pantry, dates: ['2026-11-10'], people: 4 })).toEqual([]);
+    expect(one[0]?.manual).toBe(false);
+  });
+
+  it('fills empty days and leaves a chosen recipe in place', () => {
+    const pantry: PantryItem[] = [
+      { id: 'p', name: 'عدس', category: 'staples' },
+      { id: 'r', name: 'أرز', category: 'staples' },
+    ];
+    const small = recipe('small', 'مجدرة', [{ name: 'عدس', category: 'staples' }, { name: 'أرز', category: 'staples' }], 2);
+    const fits = recipe('fits', 'شوربة عدس', [{ name: 'عدس', category: 'staples' }], 4);
+    const other = recipe('other', 'أرز بالحليب', [{ name: 'حليب', category: 'liquids' }], 6);
+    const extra = recipe('extra', 'فتوش', [{ name: 'خس', category: 'vegetables' }], 4);
+    const dates = ['2026-11-08', '2026-11-10', '2026-11-13'];
+    const again = resuggestOpenDays({
+      recipes: [small, fits, other, extra],
+      pantry,
+      people: 4,
+      dates,
+      existing: [
+        { date: '2026-11-10', recipeId: 'fits' },
+        { date: '2026-11-13', recipeId: 'small', manual: false },
+      ],
+    });
+
+    expect(again.find((slot) => slot.date === '2026-11-10')).toMatchObject({ recipeId: 'fits', manual: true });
+    const moved = again.find((slot) => slot.date === '2026-11-13');
+    expect(moved?.manual).toBe(false);
+    expect(moved?.recipeId).not.toBe('small');
+    expect(again.map((slot) => slot.date)).toEqual(dates);
   });
 
   it('lists each missing ingredient once, and only from meals that are not cooked yet', () => {

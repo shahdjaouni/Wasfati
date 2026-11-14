@@ -47,6 +47,7 @@ describe('local repository', () => {
             servings: 0,
             kind: 'main',
             vegetarian: true,
+            favorite: true,
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
             photoUri: null,
@@ -58,6 +59,7 @@ describe('local repository', () => {
             steps: ['خطوة'],
             minutes: 'كثيرة',
             kind: 'dessert',
+            favorite: 'yes',
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
           },
@@ -72,6 +74,11 @@ describe('local repository', () => {
           { date: '2026-11-07', recipeId: 'old', recipeName: 'مقلوبة خضار' },
           { date: 'not-a-day', recipeId: 'old', recipeName: 'مقلوبة خضار' },
         ],
+        plan: [
+          { date: '2026-11-08', recipeId: 'old' },
+          { date: '2026-11-10', recipeId: 'old', manual: false },
+          { date: 'bad', recipeId: 'old' },
+        ],
       }),
     );
 
@@ -82,6 +89,8 @@ describe('local repository', () => {
     expect(loaded.recipes[0]?.servings).toBeUndefined();
     expect(loaded.recipes[0]?.kind).toBe('main');
     expect(loaded.recipes[0]?.vegetarian).toBe(true);
+    expect(loaded.recipes[0]?.favorite).toBe(true);
+    expect(loaded.recipes[1]?.favorite).toBeUndefined();
     expect(loaded.recipes[1]?.minutes).toBeUndefined();
     expect(loaded.recipes[1]?.kind).toBeUndefined();
     expect(loaded.pantry.find((item) => item.id === 'dated')?.addedAt).toBe('2026-11-01T00:00:00.000Z');
@@ -90,7 +99,10 @@ describe('local repository', () => {
     expect(loaded.settings.planDays).toEqual([1, 3, 6]);
     expect(loaded.settings.planPeople).toBe(4);
     expect(loaded.settings.planDouble).toBe(false);
-    expect(loaded.plan).toEqual([]);
+    expect(loaded.plan).toEqual([
+      { date: '2026-11-08', recipeId: 'old', manual: true },
+      { date: '2026-11-10', recipeId: 'old', manual: false },
+    ]);
     expect(loaded.cookLog).toEqual([{ date: '2026-11-07', recipeId: 'old', recipeName: 'مقلوبة خضار' }]);
 
     const once = await repo.markCooked('old', 'مقلوبة خضار');

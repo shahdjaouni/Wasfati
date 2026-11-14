@@ -1,18 +1,19 @@
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AppText, Button, Notice, Screen } from '../../src/components/ui';
 import { SHORT_DAYS, weekStartingSaturday } from '../../src/home/today';
 import {
   FREQUENCY_CHOICES,
   applyFrequency,
-  fillWeek,
+  fillOpenDays,
   leftoverNote,
   missingPlanIngredients,
   missingPlanTitle,
   planBadge,
   planDishMeta,
+  resuggestOpenDays,
   selectedDates,
   togglePlanDay,
   weekRangeLabel,
@@ -45,6 +46,25 @@ export default function PlanScreen() {
   );
   const pickingRecipe = recipes.find((recipe) => recipe.id === slots.find((slot) => slot.date === picking)?.recipeId);
 
+  useEffect(() => {
+    if (!ready || recipes.length === 0) return;
+    const missing = dates.filter((date) => !plan.some((slot) => slot.date === date && slot.recipeId));
+    if (missing.length === 0) return;
+    const reserved = dates.flatMap((date) => {
+      const slot = plan.find((item) => item.date === date && item.recipeId);
+      return slot ? [slot.recipeId] : [];
+    });
+    const next = fillOpenDays({
+      recipes,
+      pantry,
+      people: settings.planPeople,
+      dates: missing,
+      reservedIds: reserved,
+    });
+    if (next.length === 0) return;
+    void setWeekPlan(missing, next);
+  }, [ready, recipes, pantry, dates, plan, settings.planPeople, setWeekPlan]);
+
   async function chooseFrequency(goal: number) {
     await updateSettings({ ...settings, ...applyFrequency(goal) });
   }
@@ -59,12 +79,17 @@ export default function PlanScreen() {
 
   async function fill() {
     if (recipes.length === 0) {
-      setNotice('ما في وصفات محفوظة الآن لنعبّي الخطة.');
+      setNotice('ما في وصفات محفوظة الآن لنقترح غيرها.');
       return;
     }
-    const next = fillWeek({ recipes, pantry, dates, people: settings.planPeople });
+    const next = resuggestOpenDays({ recipes, pantry, people: settings.planPeople, dates, existing: plan });
+    const opened = next.filter((slot) => slot.manual === false);
+    if (opened.length === 0) {
+      setNotice('الأيام اللي اخترتيها بتظل. ما في يوم مفتوح للاقتراح.');
+      return;
+    }
     await setWeekPlan(dates, next);
-    setNotice(`تعبّت ${next.length} أيام من وصفاتك`);
+    setNotice(opened.length === 1 ? 'اقترحت طبخة ليوم واحد' : `اقترحت طبخات لـ${opened.length} أيام`);
   }
 
   async function addMissing() {
@@ -155,7 +180,7 @@ export default function PlanScreen() {
           <AppText style={styles.listTitle}>طبخات الأسبوع</AppText>
           <Pressable accessibilityRole="button" onPress={() => void fill()} style={styles.fill}>
             <Feather name="star" size={15} color={colors.primaryDark} />
-            <AppText style={styles.fillText}>عبّي تلقائياً</AppText>
+            <AppText style={styles.fillText}>اقترحي غيرها</AppText>
           </Pressable>
         </View>
 

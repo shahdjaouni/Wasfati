@@ -115,6 +115,51 @@ export function planBadge(isToday: boolean, cooked: boolean): PlanBadge | null {
   return null;
 }
 
+function recipesForPeople(recipes: readonly Recipe[], pantry: readonly PantryItem[], people: number): Recipe[] {
+  const ranked = rankRecipes([...recipes], [...pantry]);
+  const fits = ranked.filter((recipe) => recipe.servings == null || recipe.servings >= people);
+  const small = ranked.filter((recipe) => recipe.servings != null && recipe.servings < people);
+  return [...fits, ...small];
+}
+
+function nextRecipe(order: readonly Recipe[], used: readonly string[], avoid: ReadonlySet<string>): Recipe | null {
+  if (order.length === 0) return null;
+  const taken = new Set(used);
+  return (
+    order.find((recipe) => !taken.has(recipe.id) && !avoid.has(recipe.id)) ??
+    order.find((recipe) => !taken.has(recipe.id)) ??
+    order[used.length % order.length]
+  );
+}
+
+/**
+ * Suggests one recipe per open day. Already reserved recipes are used again only
+ * after the other candidates. `avoidIds` is tried last, so a re-suggest can move off
+ * the current automatic pick. Every returned slot is automatic (`manual: false`).
+ */
+export function fillOpenDays(options: {
+  recipes: readonly Recipe[];
+  pantry: readonly PantryItem[];
+  people: number;
+  dates: readonly string[];
+  reservedIds?: readonly string[];
+  avoidIds?: readonly string[];
+}): PlanSlot[] {
+  if (options.recipes.length === 0 || options.dates.length === 0) return [];
+  const order = recipesForPeople(options.recipes, options.pantry, options.people);
+  const used = [...(options.reservedIds ?? [])];
+  const avoid = new Set(options.avoidIds ?? []);
+  const slots: PlanSlot[] = [];
+  for (const date of options.dates) {
+    const recipe = nextRecipe(order, used, avoid);
+    if (!recipe) break;
+    used.push(recipe.id);
+    avoid.delete(recipe.id);
+    slots.push({ date, recipeId: recipe.id, manual: false });
+  }
+  return slots;
+}
+
 /**
  * One saved recipe per selected day.
  * Among recipes that can feed `people` (or that never recorded servings),
@@ -127,15 +172,47 @@ export function fillWeek(options: {
   dates: readonly string[];
   people: number;
 }): PlanSlot[] {
-  if (options.recipes.length === 0 || options.dates.length === 0) return [];
-  const ranked = rankRecipes(options.recipes, options.pantry);
-  const fits = ranked.filter((recipe) => recipe.servings == null || recipe.servings >= options.people);
-  const small = ranked.filter((recipe) => recipe.servings != null && recipe.servings < options.people);
-  const order = [...fits, ...small];
-  return options.dates.map((date, index) => ({
-    date,
-    recipeId: order[index % order.length].id,
-  }));
+  return fillOpenDays(options);
+}
+
+/**
+ * Replaces automatic slots and fills empty days. A slot the cook chose
+ * (`manual` missing or true) stays on its day and its recipe.
+ */
+export function resuggestOpenDays(options: {
+  recipes: readonly Recipe[];
+  pantry: readonly PantryItem[];
+  people: number;
+  dates: readonly string[];
+  existing: readonly PlanSlot[];
+}): PlanSlot[] {
+  const byDate = new Map(options.existing.map((slot) => [slot.date, slot]));
+  const locked = options.dates.flatMap((date) => {
+    const slot = byDate.get(date);
+    return slot?.recipeId && slot.manual !== false ? [slot] : [];
+  });
+  const open = options.dates.filter((date) => {
+    const slot = byDate.get(date);
+    return !slot?.recipeId || slot.manual === false;
+  });
+  const suggested = fillOpenDays({
+    recipes: options.recipes,
+    pantry: options.pantry,
+    people: options.people,
+    dates: open,
+    reservedIds: locked.map((slot) => slot.recipeId),
+    avoidIds: open.flatMap((date) => {
+      const id = byDate.get(date)?.recipeId;
+      return id ? [id] : [];
+    }),
+  });
+  const suggestedByDate = new Map(suggested.map((slot) => [slot.date, slot]));
+  return options.dates.flatMap((date) => {
+    const slot = byDate.get(date);
+    if (slot?.recipeId && slot.manual !== false) return [{ ...slot, manual: true as const }];
+    const next = suggestedByDate.get(date);
+    return next ? [next] : [];
+  });
 }
 
 /** Missing ingredients of planned meals that are not already in the cooking log. Names are unique. */

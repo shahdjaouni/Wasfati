@@ -28,7 +28,7 @@ interface AppState {
   clearChecked: () => Promise<void>;
   markCooked: (recipeId: string, recipeName: string) => Promise<void>;
   updateSettings: (settings: Settings) => Promise<void>;
-  assignPlan: (date: string, recipeId: string) => Promise<void>;
+  assignPlan: (date: string, recipeId: string, manual?: boolean) => Promise<void>;
   setWeekPlan: (dates: string[], slots: PlanSlot[]) => Promise<void>;
   saveGuestPlan: (plan: GuestPlan) => Promise<void>;
   saveSettings: (settings: Settings, apiKey: string) => Promise<void>;
@@ -114,8 +114,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       async updateSettings(settings) {
         setData(await repoRef.current.updateSettings(settings));
       },
-      async assignPlan(date, recipeId) {
-        setData(await repoRef.current.assignPlan(date, recipeId));
+      async assignPlan(date, recipeId, manual) {
+        setData(await repoRef.current.assignPlan(date, recipeId, manual));
       },
       async setWeekPlan(dates, slots) {
         setData(await repoRef.current.setWeekPlan(dates, slots));
